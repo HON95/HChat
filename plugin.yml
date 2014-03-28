@@ -1,0 +1,20 @@
+name: hChat
+main: no.hon95.bukkit.hchat.HChatPlugin
+version: 1.0
+author: HON95
+description: Chat formatter.
+softdepend: [PermissionsEx, bPermissions, PermissionsBukkit]
+commands:
+    hchat:
+        description: Manage hChat.
+permissions:
+    hchat.*:
+        description: All hChat permissions.
+        default: op
+        children:
+          hchat.command: true
+          hchat.reload: true
+    hchat.command:
+        description: hchat command.
+    hchat.reload:
+        description: Reload HChat.
