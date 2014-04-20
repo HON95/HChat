@@ -1,7 +1,9 @@
 package no.hon95.bukkit.hchat;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,7 +15,7 @@ public class VariableFormatter {
 	public static final String BUKKIT_VAR_PLAYER = "%1$s";
 	public static final String BUKKIT_VAR_MSG = "%2$s";
 
-	// Outdated, for reference
+	// For reference //
 	public static final String VAR_PERCENT = "%%";
 	public static final String VAR_DISPLAY_NAME = "%n";
 	public static final String VAR_NAME = "%N";
@@ -37,7 +39,17 @@ public class VariableFormatter {
 	public static final String VAR_PLAYER_LIST = "%O";
 	public static final String VAR_VERSION_MINECRAFT = "%v";
 
+	public static List<String> format(List<String> formatList, Player player, HGroup group, String realGroup, String message, boolean chat, boolean death) {
+		ArrayList<String> results = new ArrayList<String>(formatList.size());
+		for (String format : formatList) {
+			results.add(format(format, player, group, realGroup, message, chat, death));
+		}
+		return results;
+	}
+
 	public static String format(String format, Player player, HGroup group, String realGroup, String message, boolean chat, boolean death) {
+		if (format == null)
+			return "";
 		char[] cf = format.toCharArray();
 		StringBuilder sb = new StringBuilder();
 

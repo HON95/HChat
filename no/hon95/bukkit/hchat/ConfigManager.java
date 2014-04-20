@@ -2,7 +2,9 @@ package no.hon95.bukkit.hchat;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -131,8 +133,8 @@ public final class ConfigManager {
 		String keyDeathFormat = String.format(KEY_FORMAT, group, "death_format");
 		String keyJoinFormat = String.format(KEY_FORMAT, group, "join_format");
 		String keyQuitFormat = String.format(KEY_FORMAT, group, "quit_format");
-		String keyMotdFormat = String.format(KEY_FORMAT, group, "motd_format");
 		String keyMeFormat = String.format(KEY_FORMAT, group, "me_format");
+		String keyMotdFormat = String.format(KEY_FORMAT, group, "motd_format");
 		String keyCensor = String.format(KEY_FORMAT, group, "censor");
 		String keyColorCodes = String.format(KEY_FORMAT, group, "colorcodes");
 		String keyCanChat = String.format(KEY_FORMAT, group, "canchat");
@@ -166,19 +168,21 @@ public final class ConfigManager {
 			gGroupChange = true;
 		}
 		if (!conf.isString(keyJoinFormat)) {
-			conf.set(keyJoinFormat, "%n &r&ejoined the game.");
+			conf.set(keyJoinFormat, "&e%N joined the game.");
 			gGroupChange = true;
 		}
 		if (!conf.isString(keyQuitFormat)) {
-			conf.set(keyQuitFormat, "%n &r&eleft the game.");
-			gGroupChange = true;
-		}
-		if (!conf.isString(keyMotdFormat)) {
-			conf.set(keyMotdFormat, "Welcome %n&r, there are %o players online.");
+			conf.set(keyQuitFormat, "&e%N left the game.");
 			gGroupChange = true;
 		}
 		if (!conf.isString(keyMeFormat)) {
 			conf.set(keyMeFormat, "* %n &r%m");
+			gGroupChange = true;
+		}
+		if (conf.getStringList(keyMotdFormat) == null) {
+			ArrayList<String> list = new ArrayList<String>(1);
+			list.add("Welcome %n&r, there are %o players online.");
+			conf.set(keyMotdFormat, list);
 			gGroupChange = true;
 		}
 		if (!conf.isBoolean(keyCensor)) {
@@ -208,12 +212,13 @@ public final class ConfigManager {
 		String keyDeathFormat = String.format(KEY_FORMAT, group, "death_format");
 		String keyJoinFormat = String.format(KEY_FORMAT, group, "join_format");
 		String keyQuitFormat = String.format(KEY_FORMAT, group, "quit_format");
-		String keyMotdFormat = String.format(KEY_FORMAT, group, "motd_format");
 		String keyMeFormat = String.format(KEY_FORMAT, group, "me_format");
+		String keyMotdFormat = String.format(KEY_FORMAT, group, "motd_format");
 		String keyCensor = String.format(KEY_FORMAT, group, "censor");
 		String keyColorCodes = String.format(KEY_FORMAT, group, "colorcodes");
 		String keyCanChat = String.format(KEY_FORMAT, group, "canchat");
-		String valName, valPrefix, valSuffix, valNameFormat, valChatFormat, valDeathFormat, valListFormat, valJoinFormat, valQuitFormat, valMotdFormat, valMeFormat;
+		String valName, valPrefix, valSuffix, valNameFormat, valChatFormat, valDeathFormat, valListFormat, valJoinFormat, valQuitFormat, valMeFormat;
+		List<String> valMotdFormat;
 		boolean valCensor, valColorCodes, valCanChat;
 
 		if (conf.isString(keyName))
@@ -261,15 +266,15 @@ public final class ConfigManager {
 		else
 			valQuitFormat = defGroup.quitFormat;
 
-		if (conf.isString(keyMotdFormat))
-			valMotdFormat = conf.getString(keyMotdFormat);
-		else
-			valMotdFormat = defGroup.motdFormat;
-
 		if (conf.isString(keyMeFormat))
 			valMeFormat = conf.getString(keyMeFormat);
 		else
 			valMeFormat = defGroup.meFormat;
+
+		if (conf.isList(keyMotdFormat))
+			valMotdFormat = conf.getStringList(keyMotdFormat);
+		else
+			valMotdFormat = defGroup.motdFormat;
 
 		if (conf.isBoolean(keyCensor))
 			valCensor = conf.getBoolean(keyCensor);
@@ -297,8 +302,8 @@ public final class ConfigManager {
 		hgroup.listFormat = valListFormat;
 		hgroup.joinFormat = valJoinFormat;
 		hgroup.quitFormat = valQuitFormat;
-		hgroup.motdFormat = valMotdFormat;
 		hgroup.meFormat = valMeFormat;
+		hgroup.motdFormat = valMotdFormat;
 		hgroup.censor = valCensor;
 		hgroup.colorCodes = valColorCodes;
 		hgroup.canChat = valCanChat;

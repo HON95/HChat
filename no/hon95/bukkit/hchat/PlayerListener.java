@@ -1,5 +1,7 @@
 package no.hon95.bukkit.hchat;
 
+import java.util.List;
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -54,9 +56,9 @@ public final class PlayerListener implements Listener {
 		if (gPlugin.getChatManager().getFormatJoin())
 			ev.setJoinMessage(gPlugin.getChatManager().formatJoin(ev.getPlayer()));
 		if (gPlugin.getChatManager().getFormatMotd()) {
-			String motd = gPlugin.getChatManager().formatMotd(ev.getPlayer());
-			if (motd.length() > 0)
-				ev.getPlayer().sendMessage(motd);
+			List<String> motd = gPlugin.getChatManager().formatMotd(ev.getPlayer());
+			if (motd.size() > 0)
+				ev.getPlayer().sendMessage(motd.toArray(new String[0]));
 		}
 	}
 

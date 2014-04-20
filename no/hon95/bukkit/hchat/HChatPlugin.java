@@ -10,16 +10,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class HChatPlugin extends JavaPlugin {
 
-	/*
-	 * NEW
-	 * Format join, quit, death, display name, motd, me
-	 * Using evilmidget and gravity
-	 * Changed config keys
-	 * clearchat, colors, me command
-	 * more permissions
-	 * new variables, N, H, o, O, S, v
-	 */
-
 	private static final int SERVER_MODS_API_ID = 0;
 	private static final long TASK_DELAY_UPDATE = 20L;
 	private static final long TASK_DELAY_UPDATE_PENDING_NAMES = 5L;

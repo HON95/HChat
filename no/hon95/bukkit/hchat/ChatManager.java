@@ -3,6 +3,7 @@ package no.hon95.bukkit.hchat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -115,7 +116,7 @@ public final class ChatManager {
 		return VariableFormatter.format(group.quitFormat, player, group, realGroup, null, false, false);
 	}
 
-	public String formatMotd(Player player) {
+	public List<String> formatMotd(Player player) {
 		HGroup group = getGroup(player.getUniqueId());
 		String realGroup = gPlayerGroups.get(player.getUniqueId());
 		return VariableFormatter.format(group.motdFormat, player, group, realGroup, null, false, false);

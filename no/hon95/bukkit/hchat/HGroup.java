@@ -1,5 +1,7 @@
 package no.hon95.bukkit.hchat;
 
+import java.util.List;
+
 public final class HGroup {
 
 	public String id = null;
@@ -12,8 +14,8 @@ public final class HGroup {
 	public String deathFormat = null;
 	public String joinFormat = null;
 	public String quitFormat = null;
-	public String motdFormat = null;
 	public String meFormat = null;
+	public List<String> motdFormat = null;
 	public boolean censor = false;
 	public boolean colorCodes = false;
 	public boolean canChat = false;
