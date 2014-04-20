@@ -1,13 +1,19 @@
 package no.hon95.bukkit.hchat;
 
-public final class Group {
+public final class HGroup {
 
 	public String id = null;
 	public String name = null;
 	public String prefix = null;
 	public String suffix = null;
-	public String format = null;
+	public String nameFormat = null;
 	public String listFormat = null;
+	public String chatFormat = null;
+	public String deathFormat = null;
+	public String joinFormat = null;
+	public String quitFormat = null;
+	public String motdFormat = null;
+	public String meFormat = null;
 	public boolean censor = false;
 	public boolean colorCodes = false;
 	public boolean canChat = false;

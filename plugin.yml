@@ -1,20 +1,38 @@
 name: hChat
 main: no.hon95.bukkit.hchat.HChatPlugin
-version: 1.0
+version: 1.1
 author: HON95
 description: Chat formatter.
-softdepend: [PermissionsEx, bPermissions, PermissionsBukkit]
+softdepend: [Vault]
 commands:
     hchat:
         description: Manage hChat.
+    clearchat:
+        description: Clear chat.
+    colors:
+        description: Get message with color codes.
+    me:
+        description: Performs the specified action in chat.
 permissions:
     hchat.*:
         description: All hChat permissions.
         default: op
         children:
           hchat.command: true
+          hchat.command.clearchat: true
+          hchat.command.colors: true
+          hchat.command.me: true
           hchat.reload: true
+          hchat.unclearable: true
     hchat.command:
-        description: hchat command.
+        description: For hchat command.
+    hchat.command.clearchat:
+        description: For clearchat command.
+    hchat.command.colors:
+        description: For colors command.
+    hchat.command.me:
+        description: For me command.
     hchat.reload:
         description: Reload HChat.
+    hchat.unclearable:
+        description: Unclearable chat.
