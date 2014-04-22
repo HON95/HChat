@@ -179,7 +179,7 @@ public final class ConfigManager {
 			conf.set(keyMeFormat, "* %n &r%m");
 			gGroupChange = true;
 		}
-		if (conf.getStringList(keyMotdFormat) == null) {
+		if (!conf.isList(keyMotdFormat)) {
 			ArrayList<String> list = new ArrayList<String>(1);
 			list.add("Welcome %n&r, there are %o players online.");
 			conf.set(keyMotdFormat, list);
