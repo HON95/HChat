@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 
@@ -25,6 +26,7 @@ public final class ChatManager {
 	private boolean gFormatQuit = true;
 	private boolean gFormatMotd = true;
 	private boolean gFormatMe = true;
+	private boolean gFormatTell = true;
 	private final HashMap<String, HGroup> gGroups = new HashMap<String, HGroup>();
 	private final HashMap<UUID, String> gPlayerGroups = new HashMap<UUID, String>();
 	private final HashMap<String, String> gCensoredWords = new HashMap<String, String>();
@@ -59,20 +61,36 @@ public final class ChatManager {
 		gPlayerGroups.remove(player.getUniqueId());
 	}
 
+	public HGroup getGroup(UUID playerUuid) {
+		String playerGroup = gPlayerGroups.get(playerUuid);
+		return getGroup(playerGroup);
+	}
+
+	public HGroup getGroup(String name) {
+		HGroup group = gGroups.get(name);
+		if (group == null)
+			group = gGroups.get(DEFAULT_GROUP_NAME);
+		return group;
+	}
+
+	public HGroup getGroup(CommandSender sender) {
+		if (sender instanceof Player)
+			return getGroup(((Player) sender).getUniqueId());
+		return getGroup(DEFAULT_GROUP_NAME);
+	}
+
+	public String getRealGroup(CommandSender sender) {
+		if (sender instanceof Player)
+			return gPlayerGroups.get(((Player) sender).getUniqueId());
+		return null;
+	}
+
 	public void doPendingNameUpdates() {
 		Iterator<Player> it = gNameUpdatesPending.iterator();
 		while (it.hasNext()) {
 			updatePlayerNames(it.next());
 			it.remove();
 		}
-	}
-
-	public HGroup getGroup(UUID uuid) {
-		String playerGroup = gPlayerGroups.get(uuid);
-		HGroup group = gGroups.get(playerGroup);
-		if (group == null)
-			group = gGroups.get(DEFAULT_GROUP_NAME);
-		return group;
 	}
 
 	public void updatePlayerNames(Player player) {
@@ -84,48 +102,60 @@ public final class ChatManager {
 
 	private void updateDisplayName(Player player, HGroup group, String realGroup) {
 		if (gFormatName)
-			player.setDisplayName(VariableFormatter.format(group.nameFormat, player, group, realGroup, null, false, false));
+			player.setDisplayName(VariableFormatter.format(group.nameFormat, player, group, realGroup, null, null, false, false, false));
 	}
 
 	private void updateListName(Player player, HGroup group, String realGroup) {
 		if (gFormatList)
-			player.setPlayerListName(VariableFormatter.format(group.listFormat, player, group, realGroup, null, false, false));
+			player.setPlayerListName(VariableFormatter.format(group.listFormat, player, group, realGroup, null, null, false, false, false));
 	}
 
 	public String formatChat(Player player) {
 		HGroup group = getGroup(player.getUniqueId());
 		String realGroup = gPlayerGroups.get(player.getUniqueId());
-		return VariableFormatter.format(group.chatFormat, player, group, realGroup, null, true, false);
+		return VariableFormatter.format(group.chatFormat, player, group, realGroup, null, null, true, false, false);
 	}
 
 	public String formatDeath(Player player, String deathMessage) {
 		HGroup group = getGroup(player.getUniqueId());
 		String realGroup = gPlayerGroups.get(player.getUniqueId());
-		return VariableFormatter.format(group.deathFormat, player, group, realGroup, deathMessage, false, true);
+		return VariableFormatter.format(group.deathFormat, player, group, realGroup, deathMessage, null, false, true, false);
 	}
 
 	public String formatJoin(Player player) {
 		HGroup group = getGroup(player.getUniqueId());
 		String realGroup = gPlayerGroups.get(player.getUniqueId());
-		return VariableFormatter.format(group.joinFormat, player, group, realGroup, null, false, false);
+		return VariableFormatter.format(group.joinFormat, player, group, realGroup, null, null, false, false, false);
 	}
 
 	public String formatQuit(Player player) {
 		HGroup group = getGroup(player.getUniqueId());
 		String realGroup = gPlayerGroups.get(player.getUniqueId());
-		return VariableFormatter.format(group.quitFormat, player, group, realGroup, null, false, false);
+		return VariableFormatter.format(group.quitFormat, player, group, realGroup, null, null, false, false, false);
 	}
 
 	public List<String> formatMotd(Player player) {
 		HGroup group = getGroup(player.getUniqueId());
 		String realGroup = gPlayerGroups.get(player.getUniqueId());
-		return VariableFormatter.format(group.motdFormat, player, group, realGroup, null, false, false);
+		return VariableFormatter.format(group.motdFormat, player, group, realGroup, null, null, false, false, false);
 	}
 
-	public String formatMe(Player player, String message) {
-		HGroup group = getGroup(player.getUniqueId());
-		String realGroup = gPlayerGroups.get(player.getUniqueId());
-		return VariableFormatter.format(group.meFormat, player, group, realGroup, message, false, false);
+	public String formatMe(CommandSender sender, String message) {
+		HGroup group = getGroup(sender);
+		String realGroup = getRealGroup(sender);
+		return VariableFormatter.format(group.meFormat, sender, group, realGroup, message, null, false, false, false);
+	}
+
+	public String formatTellSender(CommandSender sender, String message, CommandSender receiver) {
+		HGroup group = getGroup(sender);
+		String realGroup = getRealGroup(sender);
+		return VariableFormatter.format(group.tellSenderFormat, sender, group, realGroup, message, receiver, false, false, true);
+	}
+
+	public String formatTellReceiver(CommandSender sender, String message, CommandSender receiver) {
+		HGroup group = getGroup(receiver);
+		String realGroup = getRealGroup(receiver);
+		return VariableFormatter.format(group.tellReceiverFormat, sender, group, realGroup, message, receiver, false, false, true);
 	}
 
 	public void updateNamesNextTick(Player player) {
@@ -164,6 +194,10 @@ public final class ChatManager {
 		gFormatMe = format;
 	}
 
+	public void setFormatTell(boolean format) {
+		gFormatTell = format;
+	}
+
 	public boolean getFormatName() {
 		return gFormatName;
 	}
@@ -194,6 +228,10 @@ public final class ChatManager {
 
 	public boolean getFormatMe() {
 		return gFormatMe;
+	}
+
+	public boolean getFormatTell() {
+		return gFormatTell;
 	}
 
 	public Map<UUID, String> getPlayerGroups() {

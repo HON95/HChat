@@ -1,11 +1,14 @@
 package no.hon95.bukkit.hchat;
 
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_CHAT;
+
 import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
@@ -27,30 +30,34 @@ public final class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onEvent(AsyncPlayerChatEvent ev) {
+		if (ev.isCancelled())
+			return;
 		if (!gPlugin.getChatManager().getFormatChat())
+			return;
+		if (!ev.getPlayer().hasPermission(PERM_CHAT))
 			return;
 
 		Player player = ev.getPlayer();
 		HGroup group = gPlugin.getChatManager().getGroup(player.getUniqueId());
+		if (!group.canChat || !player.hasPermission(PERM_CHAT)) {
+			ev.setCancelled(true);
+			player.sendMessage(ChatColor.RED + "You are not allowed to chat!");
+		}
 		if (group.censor)
 			ev.setMessage(ChatCensor.censor(ev.getMessage(), gPlugin.getChatManager().getCensoredWords()));
 		if (group.colorCodes)
 			ev.setMessage(ChatColor.translateAlternateColorCodes('&', ev.getMessage()));
-		if (!group.canChat) {
-			ev.setCancelled(true);
-			player.sendMessage(ChatColor.RED + "You are not allowed to chat!");
-		}
 		String chatFormat = gPlugin.getChatManager().formatChat(player);
 		ev.setFormat(chatFormat);
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOW)
 	public void onEvent(PlayerDeathEvent ev) {
 		if (gPlugin.getChatManager().getFormatDeath())
 			ev.setDeathMessage(gPlugin.getChatManager().formatDeath(ev.getEntity(), ev.getDeathMessage()));
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOW)
 	public void onEvent(PlayerJoinEvent ev) {
 		gPlugin.getChatManager().updatePlayer(ev.getPlayer());
 		if (gPlugin.getChatManager().getFormatJoin())
@@ -62,7 +69,7 @@ public final class PlayerListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOW)
 	public void onEvent(PlayerQuitEvent ev) {
 		if (gPlugin.getChatManager().getFormatQuit())
 			ev.setQuitMessage(gPlugin.getChatManager().formatQuit(ev.getPlayer()));

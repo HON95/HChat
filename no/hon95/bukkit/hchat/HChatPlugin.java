@@ -1,5 +1,10 @@
 package no.hon95.bukkit.hchat;
 
+import static no.hon95.bukkit.hchat.HChatCommands.CMD_CLEAR_CHAT;
+import static no.hon95.bukkit.hchat.HChatCommands.CMD_COLORS;
+import static no.hon95.bukkit.hchat.HChatCommands.CMD_HCHAT;
+import static no.hon95.bukkit.hchat.HChatCommands.CMD_ME;
+import static no.hon95.bukkit.hchat.HChatCommands.CMD_TELL;
 import net.gravitydevelopment.updater.Updater;
 import net.milkbowl.vault.permission.Permission;
 
@@ -10,7 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class HChatPlugin extends JavaPlugin {
 
-	private static final int SERVER_MODS_API_ID = 0;
+	private static final int SERVER_MODS_API_ID = 77039;
 	private static final long TASK_DELAY_UPDATE = 20L;
 	private static final long TASK_DELAY_UPDATE_PENDING_NAMES = 5L;
 
@@ -22,6 +27,7 @@ public final class HChatPlugin extends JavaPlugin {
 
 	private boolean gEnable = true;
 	private boolean gCheckForUpdates = true;
+	private boolean gUpdateIfAvailable = true;
 
 	@Override
 	public void onLoad() {
@@ -39,10 +45,11 @@ public final class HChatPlugin extends JavaPlugin {
 		hookIntoVault();
 
 		getServer().getPluginManager().registerEvents(gPlayerListener, this);
-		getCommand("hchat").setExecutor(gCommandExecutor);
-		getCommand("clearchat").setExecutor(gCommandExecutor);
-		getCommand("colors").setExecutor(gCommandExecutor);
-		getCommand("me").setExecutor(gCommandExecutor);
+		getCommand(CMD_HCHAT).setExecutor(gCommandExecutor);
+		getCommand(CMD_CLEAR_CHAT).setExecutor(gCommandExecutor);
+		getCommand(CMD_COLORS).setExecutor(gCommandExecutor);
+		getCommand(CMD_ME).setExecutor(gCommandExecutor);
+		getCommand(CMD_TELL).setExecutor(gCommandExecutor);
 
 		getServer().getScheduler().runTaskTimer(this, new Runnable() {
 			public void run() {
@@ -55,8 +62,34 @@ public final class HChatPlugin extends JavaPlugin {
 			}
 		}, 0, TASK_DELAY_UPDATE);
 
-		if (gCheckForUpdates)
-			new Updater(this, SERVER_MODS_API_ID, getFile(), Updater.UpdateType.DEFAULT, false);
+		if (gCheckForUpdates) {
+			final HChatPlugin plugin = this;
+			getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
+				public void run() {
+					Updater.UpdateType type;
+					if (gUpdateIfAvailable)
+						type = Updater.UpdateType.DEFAULT;
+					else
+						type = Updater.UpdateType.NO_DOWNLOAD;
+					Updater updater = new Updater(plugin, SERVER_MODS_API_ID, getFile(), type, false);
+					switch (updater.getResult()) {
+					case SUCCESS:
+						plugin.getLogger().info("An update has been downloaded: " + updater.getLatestName());
+						break;
+					case UPDATE_AVAILABLE:
+						plugin.getLogger().info("An update is available: " + updater.getLatestName());
+						break;
+					default:
+						break;
+					}
+				}
+			});
+		}
+	}
+
+	@Override
+	public void onDisable() {
+		getServer().getScheduler().cancelTasks(this);
 	}
 
 	private boolean hookIntoVault() {
@@ -95,5 +128,9 @@ public final class HChatPlugin extends JavaPlugin {
 
 	public void setCheckForUpdates(boolean checkForUpdates) {
 		gCheckForUpdates = checkForUpdates;
+	}
+
+	public void setUpdateIfAvailable(boolean update) {
+		gUpdateIfAvailable = update;
 	}
 }

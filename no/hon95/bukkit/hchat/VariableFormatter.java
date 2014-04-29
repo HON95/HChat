@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 
@@ -19,6 +20,8 @@ public class VariableFormatter {
 	public static final String VAR_PERCENT = "%%";
 	public static final String VAR_DISPLAY_NAME = "%n";
 	public static final String VAR_NAME = "%N";
+	public static final String VAR_RECEIVER_DISPLAY_NAME = "%r";
+	public static final String VAR_RECEIVER_NAME = "%R";
 	public static final String VAR_MSG = "%m";
 	public static final String VAR_GROUP = "%g";
 	public static final String VAR_GROUP_REAL = "%G";
@@ -39,15 +42,15 @@ public class VariableFormatter {
 	public static final String VAR_PLAYER_LIST = "%O";
 	public static final String VAR_VERSION_MINECRAFT = "%v";
 
-	public static List<String> format(List<String> formatList, Player player, HGroup group, String realGroup, String message, boolean chat, boolean death) {
+	public static List<String> format(List<String> formatList, CommandSender sender, HGroup group, String realGroup, String message, CommandSender receiver, boolean chat, boolean death, boolean hasReceiver) {
 		ArrayList<String> results = new ArrayList<String>(formatList.size());
 		for (String format : formatList) {
-			results.add(format(format, player, group, realGroup, message, chat, death));
+			results.add(format(format, sender, group, realGroup, message, receiver, chat, death, hasReceiver));
 		}
 		return results;
 	}
 
-	public static String format(String format, Player player, HGroup group, String realGroup, String message, boolean chat, boolean death) {
+	public static String format(String format, CommandSender sender, HGroup group, String realGroup, String message, CommandSender receiver, boolean chat, boolean death, boolean hasReceiver) {
 		if (format == null)
 			return "";
 		char[] cf = format.toCharArray();
@@ -55,7 +58,7 @@ public class VariableFormatter {
 
 		for (int i = 0; i < cf.length; i++) {
 			if (cf[i] == '%' && i < cf.length - 1) {
-				String val = getValue(cf[i + 1], player, group, realGroup, message, chat, death);
+				String val = getValue(cf[i + 1], sender, group, realGroup, message, receiver, chat, death, hasReceiver);
 				if (val != null) {
 					sb.append(val);
 					i++;
@@ -67,24 +70,43 @@ public class VariableFormatter {
 		return ChatColor.translateAlternateColorCodes('&', sb.toString());
 	}
 
-	private static String getValue(char c, Player player, HGroup group, String realGroup, String message, boolean chat, boolean death) {
+	private static String getValue(char c, CommandSender sender, HGroup group, String realGroup, String message, CommandSender receiver, boolean chat, boolean death, boolean hasReceiver) {
+		Player player = null;
+		Player receiverPlayer = null;
+		if (sender instanceof Player)
+			player = (Player) sender;
+		if (receiver instanceof Player)
+			receiverPlayer = (Player) receiver;
+		String percent = chat ? "%%" : "%";
+
 		switch (c) {
 		case '%':
-			if (chat)
-				return "%%";
-			return "%";
+			return percent;
 		case 'n':
 			if (chat)
 				return BUKKIT_VAR_PLAYER;
-			return player.getDisplayName();
+			if (player != null)
+				return player.getDisplayName();
+			return sender.getName();
 		case 'N':
-			return player.getName();
+			return sender.getName();
+		case 'r':
+			if (hasReceiver) {
+				if (receiverPlayer != null)
+					return receiverPlayer.getDisplayName();
+				return receiver.getName();
+			}
+			return "";
+		case 'R':
+			if (hasReceiver)
+				return receiver.getName();
+			return "";
 		case 'm':
 			if (chat)
 				return BUKKIT_VAR_MSG;
 			if (message != null) {
 				if (death)
-					return cutDeathMessage(player.getName(), message);
+					return cutDeathMessage(sender.getName(), message);
 				return message;
 			}
 			return "";
@@ -103,23 +125,31 @@ public class VariableFormatter {
 		case 'T':
 			return new SimpleDateFormat("HH:mm").format(new Date(System.currentTimeMillis()));
 		case 'h':
-			return ""; //String.valueOf(100 * player.getHealth()/player.getMaxHealth()) + "%%"; //FIXME
+			return ""; //String.valueOf(100 * player.getHealth()/player.getMaxHealth()) + percent; //FIXME
 		case 'H':
 			return ""; //Health bars [|||||] //FIXME
 		case 'f':
-			return (player.getFoodLevel() * 5) + "%%";
+			if (player != null)
+				return (player.getFoodLevel() * 5) + percent;
+			return "0" + percent;
 		case 'l':
-			return String.valueOf(player.getLevel());
+			if (player != null)
+				return String.valueOf(player.getLevel());
 		case 'M':
-			return player.getGameMode().name();
+			if (player != null)
+				return player.getGameMode().name();
 		case 'w':
-			return player.getLocation().getWorld().getName();
+			if (player != null)
+				return player.getLocation().getWorld().getName();
 		case 'x':
-			return String.valueOf(player.getLocation().getBlockX());
+			if (player != null)
+				return String.valueOf(player.getLocation().getBlockX());
 		case 'y':
-			return String.valueOf(player.getLocation().getBlockY());
+			if (player != null)
+				return String.valueOf(player.getLocation().getBlockY());
 		case 'z':
-			return String.valueOf(player.getLocation().getBlockZ());
+			if (player != null)
+				return String.valueOf(player.getLocation().getBlockZ());
 		case 'S':
 			return Bukkit.getServerName();
 		case 'o':
