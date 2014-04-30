@@ -144,7 +144,7 @@ public final class ConfigManager {
 		String keyNameFormat = String.format(KEY_FORMAT, group, "format.name");
 		String keyListFormat = String.format(KEY_FORMAT, group, "format.list");
 		String keyChatFormat = String.format(KEY_FORMAT, group, "format.chat");
-		String keyDeathFormat = String.format(KEY_FORMAT, group, "format.chat");
+		String keyDeathFormat = String.format(KEY_FORMAT, group, "format.death");
 		String keyJoinFormat = String.format(KEY_FORMAT, group, "format.join");
 		String keyQuitFormat = String.format(KEY_FORMAT, group, "format.quit");
 		String keyMeFormat = String.format(KEY_FORMAT, group, "format.me");
@@ -241,7 +241,7 @@ public final class ConfigManager {
 		String keyNameFormat = String.format(KEY_FORMAT, group, "format.name");
 		String keyListFormat = String.format(KEY_FORMAT, group, "format.list");
 		String keyChatFormat = String.format(KEY_FORMAT, group, "format.chat");
-		String keyDeathFormat = String.format(KEY_FORMAT, group, "format.chat");
+		String keyDeathFormat = String.format(KEY_FORMAT, group, "format.death");
 		String keyJoinFormat = String.format(KEY_FORMAT, group, "format.join");
 		String keyQuitFormat = String.format(KEY_FORMAT, group, "format.quit");
 		String keyMeFormat = String.format(KEY_FORMAT, group, "format.me");
@@ -423,7 +423,7 @@ public final class ConfigManager {
 		String newKeyNameFormat = String.format(KEY_FORMAT, group, "format.name");
 		String newKeyListFormat = String.format(KEY_FORMAT, group, "format.list");
 		String newKeyChatFormat = String.format(KEY_FORMAT, group, "format.chat");
-		String newKeyDeathFormat = String.format(KEY_FORMAT, group, "format.chat");
+		String newKeyDeathFormat = String.format(KEY_FORMAT, group, "format.death");
 		String newKeyJoinFormat = String.format(KEY_FORMAT, group, "format.join");
 		String newKeyQuitFormat = String.format(KEY_FORMAT, group, "format.quit");
 		String newKeyMeFormat = String.format(KEY_FORMAT, group, "format.me");
