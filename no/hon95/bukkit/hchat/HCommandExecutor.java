@@ -10,6 +10,7 @@ import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_CLEAR;
 import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_COLORS;
 import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_ME;
 import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_RELOAD;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_TELL;
 import static no.hon95.bukkit.hchat.HChatPermissions.PERM_UNCLEARABLE;
 import static org.bukkit.ChatColor.BLUE;
 import static org.bukkit.ChatColor.BOLD;
@@ -133,7 +134,7 @@ public final class HCommandExecutor implements org.bukkit.command.CommandExecuto
 	}
 
 	private void cmdTell(CommandSender sender, String[] args) {
-		if (nhasPerm(sender, PERM_COMMAND_ME))
+		if (nhasPerm(sender, PERM_COMMAND_TELL))
 			return;
 
 		if (args.length == 0) {
