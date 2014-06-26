@@ -1,0 +1,53 @@
+%: percent sign
+a: [RacesAndClasses] race
+A: [RacesAndClasses] class
+b:
+B:
+c: channel name
+C:
+d:
+D:
+e:
+E:
+f: food level (percent)
+F:
+g: name of chat group
+G: name of real group
+h: health (percent) (WIP)
+H: health (bars) (WIP)
+i:
+I:
+j:
+J:
+k:
+K:
+l: experience level
+L:
+m: message
+M: game mode
+n: display name
+N: name
+o: online players (number)
+O: online players (list)
+p: prefix
+P:
+q:
+Q:
+r: display name of receiver
+R: name of receiver
+s: suffix
+S: server name
+t: time (HH:mm:ss)
+T: time (HH:mm)
+u:
+U:
+v: bukkit version
+V:
+w:
+W:
+x: x location (int)
+X:
+y: y location (int)
+Y:
+z: z location (int)
+Z:

@@ -1,8 +1,4 @@
-package com.evilmidget38;
-
-import com.google.common.collect.ImmutableList;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+package no.hon95.bukkit.hchat.util.evilmidget38;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -12,6 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import com.google.common.collect.ImmutableList;
 
 
 public class NameFetcher implements Callable<Map<UUID, String>> {

@@ -1,10 +1,9 @@
 package no.hon95.bukkit.hchat;
 
-import static no.hon95.bukkit.hchat.HChatPermissions.PERM_CHAT;
-
 import java.util.List;
 
-import org.bukkit.ChatColor;
+import no.hon95.bukkit.hchat.format.Formatter.MessageType;
+
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,42 +27,30 @@ public final class PlayerListener implements Listener {
 		gPlugin = plugin;
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onEvent(AsyncPlayerChatEvent ev) {
-		if (ev.isCancelled())
-			return;
-		if (!gPlugin.getChatManager().getFormatChat())
-			return;
-		if (!ev.getPlayer().hasPermission(PERM_CHAT))
-			return;
-
-		Player player = ev.getPlayer();
-		HGroup group = gPlugin.getChatManager().getGroup(player.getUniqueId());
-		if (!group.canChat || !player.hasPermission(PERM_CHAT)) {
-			ev.setCancelled(true);
-			player.sendMessage(ChatColor.RED + "You are not allowed to chat!");
-		}
-		if (group.censor)
-			ev.setMessage(ChatCensor.censor(ev.getMessage(), gPlugin.getChatManager().getCensoredWords()));
-		if (group.colorCodes)
-			ev.setMessage(ChatColor.translateAlternateColorCodes('&', ev.getMessage()));
-		String chatFormat = gPlugin.getChatManager().formatChat(player);
-		ev.setFormat(chatFormat);
+		gPlugin.getChatManager().onChat(ev);
 	}
 
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onEvent(PlayerDeathEvent ev) {
-		if (gPlugin.getChatManager().getFormatDeath())
-			ev.setDeathMessage(gPlugin.getChatManager().formatDeath(ev.getEntity(), ev.getDeathMessage()));
+		if (gPlugin.getChatManager().getFormatDeath()) {
+			String message = gPlugin.getFormatManager().formatString(MessageType.DEATH, ev.getEntity(), null, ev.getDeathMessage());
+			ev.setDeathMessage(message);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onEvent(PlayerJoinEvent ev) {
-		gPlugin.getChatManager().updatePlayer(ev.getPlayer());
-		if (gPlugin.getChatManager().getFormatJoin())
-			ev.setJoinMessage(gPlugin.getChatManager().formatJoin(ev.getPlayer()));
+		gPlugin.getUuidManager().loadName(ev.getPlayer().getUniqueId());
+		gPlugin.getChatManager().loadPlayer(ev.getPlayer());
+
+		if (gPlugin.getChatManager().getFormatJoin()) {
+			String message = gPlugin.getFormatManager().formatString(MessageType.JOIN, ev.getPlayer(), null, null);
+			ev.setJoinMessage(message);
+		}
 		if (gPlugin.getChatManager().getFormatMotd()) {
-			List<String> motd = gPlugin.getChatManager().formatMotd(ev.getPlayer());
+			List<String> motd = gPlugin.getFormatManager().formatList(MessageType.MOTD, ev.getPlayer(), null, null);
 			if (motd.size() > 0)
 				ev.getPlayer().sendMessage(motd.toArray(new String[0]));
 		}
@@ -71,34 +58,34 @@ public final class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onEvent(PlayerQuitEvent ev) {
-		if (gPlugin.getChatManager().getFormatQuit())
-			ev.setQuitMessage(gPlugin.getChatManager().formatQuit(ev.getPlayer()));
-		gPlugin.getChatManager().removePlayer(ev.getPlayer());
+		if (gPlugin.getChatManager().getFormatQuit()) {
+			String message = gPlugin.getFormatManager().formatString(MessageType.QUIT, ev.getPlayer(), null, null);
+			ev.setQuitMessage(message);
+		}
+		gPlugin.getChatManager().unloadPlayer(ev.getPlayer());
 	}
-
-	//Events after this line; update next tick
 
 	@EventHandler
 	public void onEvent(PlayerChangedWorldEvent ev) {
-		gPlugin.getChatManager().updatePlayer(ev.getPlayer()); //Useless, player is still in same world
+		gPlugin.getChatManager().updateNamesNextTick(ev.getPlayer());
 	}
 
 	@EventHandler
 	public void onEvent(PlayerLevelChangeEvent ev) {
-		gPlugin.getChatManager().updatePlayer(ev.getPlayer()); //Useless, player still has same level
+		gPlugin.getChatManager().updateNamesNextTick(ev.getPlayer());
 	}
 
 	@EventHandler
 	public void onEvent(FoodLevelChangeEvent ev) {
 		if (ev.getEntityType() != EntityType.PLAYER)
 			return;
-		gPlugin.getChatManager().updatePlayer((Player) ev.getEntity()); //Useless, still same state
+		gPlugin.getChatManager().updateNamesNextTick((Player) ev.getEntity());
 	}
 
 	@EventHandler
 	public void onEvent(EntityDamageEvent ev) {
 		if (ev.getEntityType() != EntityType.PLAYER)
 			return;
-		gPlugin.getChatManager().updatePlayer((Player) ev.getEntity());//Useless, still same state
+		gPlugin.getChatManager().updateNamesNextTick((Player) ev.getEntity());
 	}
 }

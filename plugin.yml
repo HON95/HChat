@@ -1,18 +1,25 @@
 name: hChat
 main: no.hon95.bukkit.hchat.HChatPlugin
-version: 1.3
+version: 1.4
 author: HON95
 description: Chat formatter.
-softdepend: [Vault]
+softdepend: [Vault,RacesAndClasses]
 commands:
     hchat:
         description: Manage hChat.
+    channel:
+        description: Chat channels.
+        aliases: [ch]
     clearchat:
         description: Clear chat.
     colors:
         description: Get message with color codes.
     me:
         description: Performs the specified action in chat.
+    mute:
+        description: Mute players.
+    unmute:
+        description: Unmute players.
     tell:
         description: Sends a private message to the given player.
         aliases: [w, msg, pm]
@@ -22,26 +29,45 @@ permissions:
         default: op
         children:
           hchat.command: true
+          hchat.command.channel: true
           hchat.command.clearchat: true
           hchat.command.colors: true
           hchat.command.me: true
+          hchat.command.mute: true
+          hchat.command.unmute: true
           hchat.command.tell: true
           hchat.reload: true
+          hchat.list: true
           hchat.unclearable: true
+          hchat.spy: true
+          hchat.immutable: true
+          hchat.mute.global: true
+          hchat.channel.*: true
     hchat.command:
         description: For hchat command.
+    hchat.command.channel:
+        description: For channel command.
     hchat.command.clearchat:
         description: For clearchat command.
     hchat.command.colors:
         description: For colors command.
     hchat.command.me:
         description: For me command.
+    hchat.command.mute:
+        description: For mute command.
+    hchat.command.unmute:
+        description: For unmute command.
     hchat.command.tell:
         description: For tell command.
     hchat.reload:
         description: Reload HChat.
     hchat.unclearable:
         description: Unclearable chat.
-    hchat.chat:
-        description: Be able to chat.
-        default: true
+    hchat.spy:
+        description: See all personal messages.
+    hchat.immutable:
+        description: Player can not be muted.
+    hchat.mute.global:
+        description: Mute and unmute players globally.
+    hchat.channel.*:
+        description: Access to all channels.
