@@ -85,7 +85,7 @@ public final class ChatManager {
 	}
 
 	public void updatePlayerGroup(Player player) {
-		String group = gPlugin.getVault().getPlayerGroup(player);
+		String group = getPlayerGroup(player);
 		String oldGroup = gPlayerGroups.get(player.getUniqueId());
 		HGroup hgroup = getGroup(group);
 		if (oldGroup == null || !oldGroup.equalsIgnoreCase(hgroup.getId())) {
@@ -177,7 +177,7 @@ public final class ChatManager {
 
 	public String getRealGroup(CommandSender sender) {
 		if (sender instanceof Player)
-			return gPlugin.getVault().getPlayerGroup(((Player) sender));
+			return getPlayerGroup(((Player) sender));
 		return null;
 	}
 
@@ -271,6 +271,19 @@ public final class ChatManager {
 			player.setDisplayName(gPlugin.getFormatManager().formatString(MessageType.NAME, player, null, null));
 		if (gFormatList)
 			player.setPlayerListName(gPlugin.getFormatManager().formatString(MessageType.NAME, player, null, null));
+	}
+
+	//// MISC ////
+
+	public String getPlayerGroup(Player player) {
+		String chosenGroup = null;
+		for (String group : gPlugin.getVault().getPlayerGroups(player)) {
+			if (getGroups().containsKey(group))
+				chosenGroup = group;
+		}
+		if (chosenGroup == null)
+			chosenGroup = gPlugin.getVault().getPlayerGroup(player);
+		return chosenGroup;
 	}
 
 	//// CHAT PROCESSING ////

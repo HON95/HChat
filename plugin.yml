@@ -1,6 +1,6 @@
 name: hChat
 main: no.hon95.bukkit.hchat.HChatPlugin
-version: 1.4
+version: 1.4.1
 author: HON95
 description: Chat formatter.
 softdepend: [Vault,RacesAndClasses]
@@ -43,10 +43,45 @@ permissions:
           hchat.immutable: true
           hchat.mute.global: true
           hchat.channel.*: true
-    hchat.command:
-        description: For hchat command.
+    hchat.command.hchat:
+        description: For all subcommands of command hchat.
+        children:
+          hchat.command.hchat.reload: true
+          hchat.command.hchat.list: true
+          hchat.command.hchat.update: true
+    hchat.command.hchat.reload:
+        description: Reload HChat.
+    hchat.command.hchat.list:
+        description: List info from hChat.
+    hchat.command.hchat.reload:
+        description: Update hchat to newest version.
     hchat.command.channel:
-        description: For channel command.
+        description: For all subcommands of command channel.
+        children:
+          hchat.command.channel.join: true
+          hchat.command.channel.leave: true
+          hchat.command.channel.list: true
+          hchat.command.channel.info: true
+          hchat.command.channel.who: true
+          hchat.command.channel.create: true
+          hchat.command.channel.delete: true
+          hchat.command.channel.edit: true
+    hchat.command.channel.join:
+        description: Join a channel.
+    hchat.command.channel.leave:
+        description: Leave a channel.
+    hchat.command.channel.list:
+        description: List all channels.
+    hchat.command.channel.info:
+        description: Get infor about channel.
+    hchat.command.channel.who:
+        description: See who is in a channel.
+    hchat.command.channel.create:
+        description: Create a channel.
+    hchat.command.channel.delete:
+        description: Delete a channel.
+    hchat.command.channel.edit:
+        description: Edit a channel.
     hchat.command.clearchat:
         description: For clearchat command.
     hchat.command.colors:
@@ -59,8 +94,6 @@ permissions:
         description: For unmute command.
     hchat.command.tell:
         description: For tell command.
-    hchat.reload:
-        description: Reload HChat.
     hchat.unclearable:
         description: Unclearable chat.
     hchat.spy:
@@ -70,4 +103,4 @@ permissions:
     hchat.mute.global:
         description: Mute and unmute players globally.
     hchat.channel.*:
-        description: Access to all channels.
+        description: Access to all channels as a member.

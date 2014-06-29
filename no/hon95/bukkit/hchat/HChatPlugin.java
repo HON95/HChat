@@ -9,6 +9,7 @@ import static no.hon95.bukkit.hchat.HChatCommands.CMD_MUTE;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_TELL;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_UNMUTE;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -121,7 +122,10 @@ public final class HChatPlugin extends JavaPlugin {
 					case UPDATE_AVAILABLE:
 						HChatPlugin.this.getLogger().info("An update is available: " + updater.getLatestName());
 						break;
+					case NO_UPDATE:
+						break;
 					default:
+						HChatPlugin.this.getLogger().warning("Failed to check for updates.");
 						break;
 					}
 				}
@@ -129,6 +133,10 @@ public final class HChatPlugin extends JavaPlugin {
 		} else {
 			getLogger().info("Update checking has been disabled.");
 		}
+	}
+
+	public int getServerModsApiKey() {
+		return SERVER_MODS_API_ID;
 	}
 
 	public ConfigManager getConfigManager() {
@@ -169,5 +177,10 @@ public final class HChatPlugin extends JavaPlugin {
 
 	public void setUpdateIfAvailable(boolean update) {
 		gUpdateIfAvailable = update;
+	}
+
+	@Override
+	public File getFile() {
+		return super.getFile();
 	}
 }

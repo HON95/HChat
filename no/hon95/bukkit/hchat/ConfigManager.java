@@ -133,8 +133,8 @@ public final class ConfigManager {
 		hgroup.setDeathFormat(getConfigString(conf, group, "format.death", "%n&r%m", gGroupsChange, true));
 		hgroup.setJoinFormat(getConfigString(conf, group, "format.join", "&e%N joined the game.", gGroupsChange, true));
 		hgroup.setQuitFormat(getConfigString(conf, group, "format.quit", "&e%N left the game.", gGroupsChange, true));
-		hgroup.setChannelJoinFormat(getConfigString(conf, group, "format.channel_join", "&7%N joined channel %c&r&7.", gGroupsChange, true));
-		hgroup.setChannelQuitFormat(getConfigString(conf, group, "format.channel_quit", "&7%N left channel %c&r&7.", gGroupsChange, true));
+		hgroup.setChannelJoinFormat(getConfigString(conf, group, "format.channel_join", "&7%n joined channel %c&r&7.", gGroupsChange, true));
+		hgroup.setChannelQuitFormat(getConfigString(conf, group, "format.channel_quit", "&7%n left channel %c&r&7.", gGroupsChange, true));
 		hgroup.setMeFormat(getConfigString(conf, group, "format.me", "* %n &r%m", gGroupsChange, true));
 		hgroup.setTellSenderFormat(getConfigString(conf, group, "format.tell_sender", "[%n&r->%r&r] %m", gGroupsChange, true));
 		hgroup.setTellReceiverFormat(getConfigString(conf, group, "format.tell_receiver", "[%n&r->%r&r] %m", gGroupsChange, true));

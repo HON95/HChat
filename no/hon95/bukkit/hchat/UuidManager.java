@@ -36,7 +36,7 @@ public final class UuidManager {
 		return null;
 	}
 
-	public String getNameNotNullNoSave(UUID uuid) {
+	public String getNameNowNoSave(UUID uuid) {
 		String name = getName(uuid);
 		if (name == null) {
 			ArrayList<UUID> list = new ArrayList<UUID>();
@@ -71,18 +71,18 @@ public final class UuidManager {
 		return null;
 	}
 
-	public void loadUuid(String name) {
+	public void load(String name) {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add(name);
 		loadUuids(list);
 	}
 
-	public void loadName(UUID uuid) {
+	public void load(UUID uuid) {
 		ArrayList<UUID> list = new ArrayList<UUID>();
 		list.add(uuid);
 		loadNames(list);
 	}
-
+	
 	public void loadUuids(final List<String> names) {
 		new Thread(new Runnable() {
 			public void run() {

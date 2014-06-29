@@ -42,7 +42,7 @@ public final class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onEvent(PlayerJoinEvent ev) {
-		gPlugin.getUuidManager().loadName(ev.getPlayer().getUniqueId());
+		gPlugin.getUuidManager().load(ev.getPlayer().getUniqueId());
 		gPlugin.getChatManager().loadPlayer(ev.getPlayer());
 
 		if (gPlugin.getChatManager().getFormatJoin()) {
