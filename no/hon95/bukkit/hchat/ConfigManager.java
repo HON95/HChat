@@ -1,10 +1,10 @@
 package no.hon95.bukkit.hchat;
 
-import static no.hon95.bukkit.hchat.util.ConfigUtil.KEY_FORMAT;
 import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigBoolean;
 import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigList;
 import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigMap;
 import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigString;
+import static no.hon95.bukkit.hchat.util.ConfigUtil.removeIfSet;
 import static no.hon95.bukkit.hchat.util.ConfigUtil.saveYamlConf;
 
 import java.io.File;
@@ -70,7 +70,6 @@ public final class ConfigManager {
 
 		gPlugin.setEnable(getConfigBoolean(conf, null, "enable", true, change, true));
 		gPlugin.setCheckForUpdates(getConfigBoolean(conf, null, "check_for_updates", true, change, true));
-		gPlugin.setUpdateIfAvailable(getConfigBoolean(conf, null, "update_if_available", true, change, true));
 		gPlugin.getMetricsManager().setCollectData(getConfigBoolean(conf, null, "collect_data", true, change, true));
 		gPlugin.getChatManager().setFormatName(getConfigBoolean(conf, "format", "name", true, change, true));
 		gPlugin.getChatManager().setFormatChat(getConfigBoolean(conf, "format", "chat", true, change, true));
@@ -83,6 +82,8 @@ public final class ConfigManager {
 		gPlugin.getChatManager().setFormatMotd(getConfigBoolean(conf, "format", "motd", true, change, true));
 		gPlugin.getChatManager().setFormatMe(getConfigBoolean(conf, "format", "me", true, change, true));
 		gPlugin.getChatManager().setFormatTell(getConfigBoolean(conf, "format", "tell", true, change, true));
+
+		removeIfSet(conf, null, "update_if_available", change);
 
 		if (change.val)
 			saveYamlConf(conf, file);
@@ -119,7 +120,6 @@ public final class ConfigManager {
 
 	private HGroup loadDefaultGroup(Configuration conf) {
 		String group = DEFAULT_GROUP;
-		convertOldGroupsFormat(conf, group);
 		HashMap<String, String> worldChannels = new HashMap<String, String>();
 		worldChannels.put("example_world", "example_channel");
 		HGroup hgroup = new HGroup();
@@ -150,7 +150,6 @@ public final class ConfigManager {
 	}
 
 	private HGroup loadGroup(Configuration conf, String group, HGroup defGroup) {
-		convertOldGroupsFormat(conf, group);
 		HGroup hgroup = new HGroup();
 		hgroup.setId(group);
 		hgroup.setName(ChatColor.translateAlternateColorCodes('&', getConfigString(conf, group, "name", group, gGroupsChange, false)));
@@ -285,104 +284,5 @@ public final class ConfigManager {
 
 		if (change)
 			saveYamlConf(conf, file);
-	}
-
-	//// CONVERT ////
-
-	private void convertOldGroupsFormat(Configuration conf, String group) {
-
-		String keyName = String.format(KEY_FORMAT, group, "group_name");
-		String keyNameFormat = String.format(KEY_FORMAT, group, "name_format");
-		String keyListFormat = String.format(KEY_FORMAT, group, "list_format");
-		String keyChatFormat = String.format(KEY_FORMAT, group, "chat_format");
-		String keyDeathFormat = String.format(KEY_FORMAT, group, "death_format");
-		String keyJoinFormat = String.format(KEY_FORMAT, group, "join_format");
-		String keyQuitFormat = String.format(KEY_FORMAT, group, "quit_format");
-		String keyMeFormat = String.format(KEY_FORMAT, group, "me_format");
-		String keyTellSenderFormat = String.format(KEY_FORMAT, group, "tell_sender_format");
-		String keyTellReceiverFormat = String.format(KEY_FORMAT, group, "tell_receiver_format");
-		String keyMotdFormat = String.format(KEY_FORMAT, group, "motd_format");
-		String keyColorCodes = String.format(KEY_FORMAT, group, "colorcodes");
-		String keyCanChat = String.format(KEY_FORMAT, group, "canchat");
-
-		String newKeyName = String.format(KEY_FORMAT, group, "name");
-		String newKeyNameFormat = String.format(KEY_FORMAT, group, "format.name");
-		String newKeyListFormat = String.format(KEY_FORMAT, group, "format.list");
-		String newKeyChatFormat = String.format(KEY_FORMAT, group, "format.chat");
-		String newKeyDeathFormat = String.format(KEY_FORMAT, group, "format.death");
-		String newKeyJoinFormat = String.format(KEY_FORMAT, group, "format.join");
-		String newKeyQuitFormat = String.format(KEY_FORMAT, group, "format.quit");
-		String newKeyMeFormat = String.format(KEY_FORMAT, group, "format.me");
-		String newKeyTellSenderFormat = String.format(KEY_FORMAT, group, "format.tell_sender");
-		String newKeyTellReceiverFormat = String.format(KEY_FORMAT, group, "format.tell_receiver");
-		String newKeyMotdFormat = String.format(KEY_FORMAT, group, "format.motd");
-		String newKeyColorCodes = String.format(KEY_FORMAT, group, "color_codes");
-		String newKeyCanChat = String.format(KEY_FORMAT, group, "can_chat");
-
-		if (conf.isString(keyName)) {
-			conf.set(newKeyName, conf.getString(keyName));
-			conf.set(keyName, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isString(keyNameFormat)) {
-			conf.set(newKeyNameFormat, conf.getString(keyNameFormat));
-			conf.set(keyNameFormat, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isString(keyListFormat)) {
-			conf.set(newKeyListFormat, conf.getString(keyListFormat));
-			conf.set(keyListFormat, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isString(keyChatFormat)) {
-			conf.set(newKeyChatFormat, conf.getString(keyChatFormat));
-			conf.set(keyChatFormat, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isString(keyDeathFormat)) {
-			conf.set(newKeyDeathFormat, conf.getString(keyDeathFormat));
-			conf.set(keyDeathFormat, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isString(keyJoinFormat)) {
-			conf.set(newKeyJoinFormat, conf.getString(keyJoinFormat));
-			conf.set(keyJoinFormat, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isString(keyQuitFormat)) {
-			conf.set(newKeyQuitFormat, conf.getString(keyQuitFormat));
-			conf.set(keyQuitFormat, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isString(keyMeFormat)) {
-			conf.set(newKeyMeFormat, conf.getString(keyMeFormat));
-			conf.set(keyMeFormat, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isString(keyTellSenderFormat)) {
-			conf.set(newKeyTellSenderFormat, conf.getString(keyTellSenderFormat));
-			conf.set(keyTellSenderFormat, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isString(keyTellReceiverFormat)) {
-			conf.set(newKeyTellReceiverFormat, conf.getString(keyTellReceiverFormat));
-			conf.set(keyTellReceiverFormat, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isList(keyMotdFormat)) {
-			conf.set(newKeyMotdFormat, conf.getStringList(keyMotdFormat));
-			conf.set(keyMotdFormat, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isBoolean(keyColorCodes)) {
-			conf.set(newKeyColorCodes, conf.getBoolean(keyColorCodes));
-			conf.set(keyColorCodes, null);
-			gGroupsChange.val = true;
-		}
-		if (conf.isBoolean(keyCanChat)) {
-			conf.set(newKeyCanChat, conf.getBoolean(keyCanChat));
-			conf.set(keyCanChat, null);
-			gGroupsChange.val = true;
-		}
 	}
 }

@@ -45,6 +45,7 @@ public final class ChatManager {
 	private final HashSet<Player> gNameUpdatesPending = new HashSet<Player>();
 	private final HashSet<UUID> gMutedPlayers = new HashSet<UUID>();
 	private final HashMap<UUID, Set<UUID>> gIndividuallyMutedPlayers = new HashMap<UUID, Set<UUID>>();
+	private boolean gMuteAll = false;
 
 	public ChatManager(HChatPlugin plugin) {
 		gPlugin = plugin;
@@ -189,8 +190,6 @@ public final class ChatManager {
 
 	public void changePlayerChannel(UUID player, String channel, boolean announce) {
 		boolean join = channel != null;
-		HChannel hchannel = getChannel(channel);
-		gPlayerChannels.put(player, hchannel.getId());
 		if (announce) {
 			if (join) {
 				if (gFormatChannelJoin)
@@ -200,6 +199,7 @@ public final class ChatManager {
 					Bukkit.broadcastMessage(gPlugin.getFormatManager().formatString(MessageType.CHANNEL_QUIT, Bukkit.getPlayer(player), null, null));
 			}
 		}
+		gPlayerChannels.put(player, getChannel(channel).getId());
 	}
 
 	public void addChannel(HChannel channel) {
@@ -266,6 +266,14 @@ public final class ChatManager {
 		return gIndividuallyMutedPlayers.get(player).contains(mutedPlayer);
 	}
 
+	public Set<UUID> getGloballyMutedPlayers() {
+		return gMutedPlayers;
+	}
+
+	public Map<UUID, Set<UUID>> getIndividuallyMutedPlayers() {
+		return gIndividuallyMutedPlayers;
+	}
+
 	public void updatePlayerNames(Player player) {
 		if (gFormatName)
 			player.setDisplayName(gPlugin.getFormatManager().formatString(MessageType.NAME, player, null, null));
@@ -299,6 +307,9 @@ public final class ChatManager {
 			} else if (isPlayerMutedGlobally(sender.getUniqueId()) && !sender.hasPermission(PERM_IMMUTABLE)) {
 				ev.setCancelled(true);
 				sender.sendMessage(ChatColor.RED + "You are globally muted.");
+			} else if (gMuteAll && !sender.hasPermission(PERM_IMMUTABLE)) {
+				ev.setCancelled(true);
+				sender.sendMessage(ChatColor.RED + "Everyone except a few are currently muted.");
 			} else {
 				HChannel channel = getChannel(sender.getUniqueId());
 				String format = ev.getFormat();
@@ -313,42 +324,43 @@ public final class ChatManager {
 					message = ChatColor.translateAlternateColorCodes('&', message);
 				ev.setMessage(message);
 
-				if (!channel.isUniversal() || channel.getId() != DEFAULT_CHANNEL_NAME) {
-					HashSet<Player> newRecipients = new HashSet<Player>();
-					for (UUID pid : getChannelPlayers(channel.getId())) {
-						Player recipient = Bukkit.getPlayer(pid);
-						if (recipient != null)
-							newRecipients.add(recipient);
-					}
-					for (HChannel c : gChannels.values()) {
-						if (!c.getId().equalsIgnoreCase(channel.getId())) {
-							if (c.getMonitorChannels() != null && c.getMonitorChannels().contains(channel.getId())) {
-								for (UUID pid : getChannelPlayers(c.getId())) {
-									Player recipient = Bukkit.getPlayer(pid);
-									if (recipient != null)
-										newRecipients.add(recipient);
-								}
+				HashSet<Player> newRecipients = new HashSet<Player>();
+				for (UUID pid : getChannelPlayers(channel.getId())) {
+					Player recipient = Bukkit.getPlayer(pid);
+					if (recipient != null)
+						newRecipients.add(recipient);
+				}
+				for (HChannel c : gChannels.values()) {
+					if (!c.getId().equalsIgnoreCase(channel.getId())) {
+						if (c.getMonitorChannels() != null && c.getMonitorChannels().contains(channel.getId())) {
+							for (UUID pid : getChannelPlayers(c.getId())) {
+								Player recipient = Bukkit.getPlayer(pid);
+								if (recipient != null)
+									newRecipients.add(recipient);
 							}
 						}
 					}
-					World world = sender.getWorld();
-					Iterator<Player> iter = newRecipients.iterator();
-					while (iter.hasNext()) {
-						Player recipient = iter.next();
-						if ((isPlayerMutedIndividually(recipient.getUniqueId(), sender.getUniqueId()) && !sender.hasPermission(PERM_IMMUTABLE))
-								|| (!channel.isUniversal() && recipient.getWorld() != world))
-							iter.remove();
-					}
-					try {
-						Set<Player> recipients = ev.getRecipients();
-						recipients.clear();
-						recipients.addAll(newRecipients);
-					} catch (UnsupportedOperationException ex) {
-						gPlugin.getLogger().warning("Failed to change chat message recipient set, sending private message to each recipient instead.");
-						ev.setCancelled(true);
-						for (Player recipient : newRecipients)
-							recipient.sendMessage(String.format(format, sender.getDisplayName(), message));
-					}
+				}
+
+				World world = sender.getWorld();
+				Iterator<Player> iter = newRecipients.iterator();
+				while (iter.hasNext()) {
+					Player recipient = iter.next();
+					if ((isPlayerMutedIndividually(recipient.getUniqueId(), sender.getUniqueId()) && !sender.hasPermission(PERM_IMMUTABLE))
+							|| (!channel.isUniversal() && recipient.getWorld() != world))
+						iter.remove();
+				}
+				try {
+					Set<Player> recipients = ev.getRecipients();
+					recipients.clear();
+					recipients.addAll(newRecipients);
+				} catch (UnsupportedOperationException ex) {
+					gPlugin.getLogger().warning("Failed to change chat message recipient set, sending private message to each recipient instead. Please tell HON95 (the author) about this.");
+					ev.setCancelled(true);
+					String fullMessage = String.format(format, sender.getDisplayName(), message);
+					Bukkit.getLogger().info(fullMessage);
+					for (Player recipient : newRecipients)
+						recipient.sendMessage(fullMessage);
 				}
 			}
 		}
@@ -458,5 +470,13 @@ public final class ChatManager {
 
 	public Map<String, HChannel> getChannels() {
 		return gChannels;
+	}
+
+	public void setMuteAll(boolean muteAll) {
+		gMuteAll = muteAll;
+	}
+
+	public boolean isMuteAll() {
+		return gMuteAll;
 	}
 }

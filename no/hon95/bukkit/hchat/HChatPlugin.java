@@ -6,17 +6,17 @@ import static no.hon95.bukkit.hchat.HChatCommands.CMD_COLORS;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_HCHAT;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_ME;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_MUTE;
+import static no.hon95.bukkit.hchat.HChatCommands.CMD_MUTEALL;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_TELL;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_UNMUTE;
+import static no.hon95.bukkit.hchat.HChatCommands.CMD_UNMUTEALL;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.UUID;
 
 import no.hon95.bukkit.hchat.format.FormatManager;
 import no.hon95.bukkit.hchat.hook.RacesAndClassesHook;
 import no.hon95.bukkit.hchat.hook.VaultHook;
-import no.hon95.bukkit.hchat.util.gravitydevelopment.Updater;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,26 +25,28 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class HChatPlugin extends JavaPlugin {
 
 	private static final int SERVER_MODS_API_ID = 77039;
-	private static final long TASK_DELAY_UPDATE = 20L;
-	private static final long TASK_DELAY_UPDATE_PENDING_NAMES = 5L;
+	private static final long TASK_PERIOD_UPDATE = 20L;
+	private static final long TASK_PERIOD_UPDATE_PENDING_NAMES = 5L;
+	private static final long TASK_PERIOD_CHECK_FOR_UPDATES = 3600 * 20L;
 
 	private final ConfigManager gConfigManager = new ConfigManager(this);
 	private final PlayerListener gPlayerListener = new PlayerListener(this);
-	private HCommandExecutor gCommandExecutor = new HCommandExecutor(this);
-	private ChatManager gChatManager = new ChatManager(this);
-	private FormatManager gFormatManager = new FormatManager(this);
-	private MetricsManager gMetricsManager = new MetricsManager(this);
-	private UuidManager gUuidManager = new UuidManager();
-	private VaultHook gVaultHook = new VaultHook(this);
-	private RacesAndClassesHook gRACHook = new RacesAndClassesHook(this);
+	private final HCommandExecutor gCommandExecutor = new HCommandExecutor(this);
+	private final ChatManager gChatManager = new ChatManager(this);
+	private final FormatManager gFormatManager = new FormatManager(this);
+	private final MetricsManager gMetricsManager = new MetricsManager(this);
+	private final UuidManager gUuidManager = new UuidManager();
+	private final VaultHook gVaultHook = new VaultHook(this);
+	private final RacesAndClassesHook gRACHook = new RacesAndClassesHook(this);
+	private UpdateManager gUpdateManager;
 
 	private boolean gEnable = true;
 	private boolean gCheckForUpdates = true;
-	private boolean gUpdateIfAvailable = true;
 
 	@Override
 	public void onLoad() {
 		gConfigManager.load();
+		gUpdateManager = new UpdateManager(this, SERVER_MODS_API_ID, getFile());
 		gMetricsManager.load();
 	}
 
@@ -79,6 +81,8 @@ public final class HChatPlugin extends JavaPlugin {
 		getCommand(CMD_ME).setExecutor(gCommandExecutor);
 		getCommand(CMD_MUTE).setExecutor(gCommandExecutor);
 		getCommand(CMD_UNMUTE).setExecutor(gCommandExecutor);
+		getCommand(CMD_MUTEALL).setExecutor(gCommandExecutor);
+		getCommand(CMD_UNMUTEALL).setExecutor(gCommandExecutor);
 		getCommand(CMD_TELL).setExecutor(gCommandExecutor);
 	}
 
@@ -99,37 +103,19 @@ public final class HChatPlugin extends JavaPlugin {
 			public void run() {
 				gChatManager.doPendingNameUpdates();
 			}
-		}, 0, TASK_DELAY_UPDATE_PENDING_NAMES);
+		}, 0, TASK_PERIOD_UPDATE_PENDING_NAMES);
 		getServer().getScheduler().runTaskTimer(this, new Runnable() {
 			public void run() {
 				gChatManager.updateGroups();
 			}
-		}, 0, TASK_DELAY_UPDATE);
+		}, 0, TASK_PERIOD_UPDATE);
 
 		if (gCheckForUpdates) {
-			getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
+			getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
 				public void run() {
-					Updater.UpdateType type;
-					if (gUpdateIfAvailable)
-						type = Updater.UpdateType.DEFAULT;
-					else
-						type = Updater.UpdateType.NO_DOWNLOAD;
-					Updater updater = new Updater(HChatPlugin.this, SERVER_MODS_API_ID, getFile(), type, false);
-					switch (updater.getResult()) {
-					case SUCCESS:
-						HChatPlugin.this.getLogger().info("An update has been downloaded: " + updater.getLatestName());
-						break;
-					case UPDATE_AVAILABLE:
-						HChatPlugin.this.getLogger().info("An update is available: " + updater.getLatestName());
-						break;
-					case NO_UPDATE:
-						break;
-					default:
-						HChatPlugin.this.getLogger().warning("Failed to check for updates.");
-						break;
-					}
+					gUpdateManager.checkForUpdates(false, null);
 				}
-			});
+			}, 0, TASK_PERIOD_CHECK_FOR_UPDATES);
 		} else {
 			getLogger().info("Update checking has been disabled.");
 		}
@@ -159,6 +145,10 @@ public final class HChatPlugin extends JavaPlugin {
 		return gUuidManager;
 	}
 
+	public UpdateManager getUpdateManager() {
+		return gUpdateManager;
+	}
+
 	public VaultHook getVault() {
 		return gVaultHook;
 	}
@@ -173,14 +163,5 @@ public final class HChatPlugin extends JavaPlugin {
 
 	public void setCheckForUpdates(boolean checkForUpdates) {
 		gCheckForUpdates = checkForUpdates;
-	}
-
-	public void setUpdateIfAvailable(boolean update) {
-		gUpdateIfAvailable = update;
-	}
-
-	@Override
-	public File getFile() {
-		return super.getFile();
 	}
 }

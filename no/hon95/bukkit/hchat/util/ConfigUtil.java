@@ -72,6 +72,14 @@ public final class ConfigUtil {
 		return def;
 	}
 
+	public static void removeIfSet(Configuration conf, String section, String key, BooleanObject change) {
+		String path = section != null ? String.format(KEY_FORMAT, section, key) : key;
+		if (conf.isSet(path)) {
+			conf.set(path, null);
+			change.val = true;
+		}
+	}
+
 	public static boolean saveYamlConf(YamlConfiguration conf, File file) {
 		try {
 			file.getParentFile().mkdirs();

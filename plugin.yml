@@ -1,6 +1,6 @@
 name: hChat
 main: no.hon95.bukkit.hchat.HChatPlugin
-version: 1.4.1
+version: 1.4.2
 author: HON95
 description: Chat formatter.
 softdepend: [Vault,RacesAndClasses]
@@ -20,6 +20,10 @@ commands:
         description: Mute players.
     unmute:
         description: Unmute players.
+    muteall:
+        description: Temporarily mute all players muteable.
+    unmuteall:
+        description: Unmute all players who got muted by muteall command.
     tell:
         description: Sends a private message to the given player.
         aliases: [w, msg, pm]
@@ -92,6 +96,10 @@ permissions:
         description: For mute command.
     hchat.command.unmute:
         description: For unmute command.
+    hchat.command.muteall:
+        description: For muteall command.
+    hchat.command.unmuteall:
+        description: For unmuteall command.
     hchat.command.tell:
         description: For tell command.
     hchat.unclearable:
@@ -102,5 +110,9 @@ permissions:
         description: Player can not be muted.
     hchat.mute.global:
         description: Mute and unmute players globally.
+    hchat.mute.list:
+        description: List muted players.
     hchat.channel.*:
         description: Access to all channels as a member.
+    hchat.notify.update:
+        description: Get notified if a plugin update has been found.

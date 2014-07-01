@@ -6,9 +6,36 @@ import static no.hon95.bukkit.hchat.HChatCommands.CMD_COLORS;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_HCHAT;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_ME;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_MUTE;
+import static no.hon95.bukkit.hchat.HChatCommands.CMD_MUTEALL;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_TELL;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_UNMUTE;
-import static no.hon95.bukkit.hchat.HChatPermissions.*;
+import static no.hon95.bukkit.hchat.HChatCommands.CMD_UNMUTEALL;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_CHANNEL_ALL;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_CHANNEL_PREFIX;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_CHANNEL_CREATE;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_CHANNEL_DELETE;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_CHANNEL_EDIT;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_CHANNEL_INFO;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_CHANNEL_JOIN;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_CHANNEL_LEAVE;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_CHANNEL_LIST;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_CHANNEL_WHO;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_CLEAR;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_COLORS;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_HCHAT_LIST;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_HCHAT_RELOAD;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_HCHAT_UPDATE;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_ME;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_MUTE;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_MUTEALL;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_TELL;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_UNMUTE;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_COMMAND_UNMUTEALL;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_IMMUTABLE;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_MUTE_GLOBAL;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_MUTE_LIST;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_SPY;
+import static no.hon95.bukkit.hchat.HChatPermissions.PERM_UNCLEARABLE;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,7 +43,6 @@ import java.util.List;
 import java.util.UUID;
 
 import no.hon95.bukkit.hchat.format.Formatter.MessageType;
-import no.hon95.bukkit.hchat.util.gravitydevelopment.Updater;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -84,6 +110,10 @@ public final class HCommandExecutor implements CommandExecutor {
 			cmdMute(sender, args);
 		else if (cmd.getName().equalsIgnoreCase(CMD_UNMUTE))
 			cmdUnmute(sender, args);
+		else if (cmd.getName().equalsIgnoreCase(CMD_MUTEALL))
+			cmdMuteall(sender, args);
+		else if (cmd.getName().equalsIgnoreCase(CMD_UNMUTEALL))
+			cmdUnmuteall(sender, args);
 		else if (cmd.getName().equalsIgnoreCase(CMD_TELL))
 			cmdTell(sender, args);
 		else
@@ -124,21 +154,7 @@ public final class HCommandExecutor implements CommandExecutor {
 				final CommandSender finalSender = sender;
 				Bukkit.getScheduler().runTaskAsynchronously(gPlugin, new Runnable() {
 					public void run() {
-						Updater updater = new Updater(gPlugin, gPlugin.getServerModsApiKey(), gPlugin.getFile(), Updater.UpdateType.DEFAULT, false);
-						switch (updater.getResult()) {
-						case SUCCESS:
-							gPlugin.getLogger().info("An update has been downloaded: " + updater.getLatestName());
-							if (!(finalSender == Bukkit.getConsoleSender()))
-								finalSender.sendMessage("An update has been downloaded: " + updater.getLatestName());
-							break;
-						case NO_UPDATE:
-							break;
-						default:
-							gPlugin.getLogger().warning("Failed to check for updates.");
-							if (!(finalSender == Bukkit.getConsoleSender()))
-								finalSender.sendMessage("Failed to check for updates.");
-							break;
-						}
+						gPlugin.getUpdateManager().checkForUpdates(false, finalSender);
 					}
 				});
 			}
@@ -350,7 +366,7 @@ public final class HCommandExecutor implements CommandExecutor {
 			}
 		}
 	}
-	
+
 	private void cmdChannelInfoPrintPlayers(List<String> pids, CommandSender sender) {
 		int c = 0;
 		for (String pid : pids) {
@@ -514,16 +530,24 @@ public final class HCommandExecutor implements CommandExecutor {
 
 	private void cmdMe(CommandSender sender, String[] args) {
 		if (hasPerm(sender, PERM_COMMAND_ME)) {
-			if (args.length == 0) {
-				sender.sendMessage("§6Syntax: §r/me <action>");
+			if (gPlugin.getChatManager().isMuteAll() && !sender.hasPermission(PERM_IMMUTABLE)) {
+				sender.sendMessage("§cGlobal mute is active and you are not allowed to talk.");
+			} else if (sender instanceof Player && gPlugin.getChatManager().isPlayerMutedGlobally(((Player) sender).getUniqueId())) {
+				sender.sendMessage("§cYou may not use this command because you are muted globally.");
+			} else if (sender instanceof Player && !gPlugin.getChatManager().getGroup(sender).getCanChat()) {
+				sender.sendMessage("§cYou may not use this command because you are not allowed to chat.");
 			} else {
-				String action = StringUtils.join(args, " ");
-				String message;
-				if (gPlugin.getChatManager().getFormatMe())
-					message = gPlugin.getFormatManager().formatString(MessageType.ME, sender, null, action);
-				else
-					message = String.format("* %s %s", sender.getName(), action);
-				Bukkit.broadcastMessage(message);
+				if (args.length == 0) {
+					sender.sendMessage("§6Syntax: §r/me <action>");
+				} else {
+					String action = StringUtils.join(args, " ");
+					String message;
+					if (gPlugin.getChatManager().getFormatMe())
+						message = gPlugin.getFormatManager().formatString(MessageType.ME, sender, null, action);
+					else
+						message = String.format("* %s %s", sender.getName(), action);
+					Bukkit.broadcastMessage(message);
+				}
 			}
 		}
 	}
@@ -531,46 +555,81 @@ public final class HCommandExecutor implements CommandExecutor {
 	private void cmdMute(CommandSender sender, String[] args) {
 		if (hasPerm(sender, PERM_COMMAND_MUTE)) {
 			if (args.length == 0) {
-				sender.sendMessage("§6Syntax: §r/mute [-g] <player>");
-				sender.sendMessage("§7Use '-g' option to mute globally.");
+				sender.sendMessage("§6Syntax: §r/mute [-[g][l]] <player>");
+				sender.sendMessage("§7Use '-g' option to mute globally, '-l' to list players you have muted and '-gl' to list globally muted players.");
 			} else {
-				String playerName = args[0];
+
 				boolean global = false;
-				if (args.length > 1 && args[0].equalsIgnoreCase("-g")) {
-					playerName = args[1];
-					global = true;
+				boolean list = false;
+				if (args[0].startsWith("-")) {
+					if (args[0].contains("g"))
+						global = true;
+					if (args[0].contains("l"))
+						list = true;
 				}
 
-				Player mutedPlayer = Bukkit.getPlayer(gPlugin.getUuidManager().getUuid(playerName));
-				if (mutedPlayer == null) {
-					sender.sendMessage("§cPlayer not found: " + playerName);
-				} else if (mutedPlayer.hasPermission(PERM_IMMUTABLE)) {
-					sender.sendMessage("§cPlayer " + mutedPlayer.getName() + "§r§c can not be muted.");
-				} else {
-					if (global) {
-						if (sender.hasPermission(PERM_MUTE_GLOBAL)) {
-							if (gPlugin.getChatManager().isPlayerMutedGlobally(mutedPlayer.getUniqueId())) {
-								sender.sendMessage("§cPlayer " + mutedPlayer.getName() + "§r§a is already globally muted.");
-							} else {
-								gPlugin.getChatManager().mutePlayerGlobally(mutedPlayer.getUniqueId(), true);
-								sender.sendMessage("§aPlayer " + mutedPlayer.getName() + "§r§a has become globally muted.");
-								mutedPlayer.sendMessage("§cYou have become globally muted.");
-							}
-						} else {
-							sender.sendMessage("§cYou may not mute players globally.");
-						}
+				if (!list) {
+					String playerName = global ? args[1] : args[0];
+					Player mutedPlayer = Bukkit.getPlayer(gPlugin.getUuidManager().getUuid(playerName));
+					if (mutedPlayer == null) {
+						sender.sendMessage("§cPlayer not found: " + playerName);
+					} else if (mutedPlayer.hasPermission(PERM_IMMUTABLE)) {
+						sender.sendMessage("§cPlayer " + mutedPlayer.getName() + "§r§c can not be muted.");
 					} else {
-						if (sender instanceof Player) {
-							Player player = (Player) sender;
-							if (gPlugin.getChatManager().isPlayerMutedIndividually(player.getUniqueId(), mutedPlayer.getUniqueId())) {
-								sender.sendMessage("§cPlayer " + mutedPlayer.getName() + "§r§a is already muted.");
+						if (global) {
+							if (sender.hasPermission(PERM_MUTE_GLOBAL)) {
+								if (gPlugin.getChatManager().isPlayerMutedGlobally(mutedPlayer.getUniqueId())) {
+									sender.sendMessage("§cPlayer " + mutedPlayer.getName() + "§r§a is already globally muted.");
+								} else {
+									gPlugin.getChatManager().mutePlayerGlobally(mutedPlayer.getUniqueId(), true);
+									sender.sendMessage("§aPlayer " + mutedPlayer.getName() + "§r§a has become globally muted.");
+									mutedPlayer.sendMessage("§cYou have become globally muted.");
+								}
 							} else {
-								gPlugin.getChatManager().mutePlayerIndividually(((Player) sender).getUniqueId(), mutedPlayer.getUniqueId(), true);
-								sender.sendMessage("§aYou have muted " + mutedPlayer.getName() + "§r§a.");
+								sender.sendMessage("§cYou may not mute players globally.");
 							}
 						} else {
-							sender.sendMessage("Non-players can only mute players globally.");
+							if (sender instanceof Player) {
+								Player player = (Player) sender;
+								if (gPlugin.getChatManager().isPlayerMutedIndividually(player.getUniqueId(), mutedPlayer.getUniqueId())) {
+									sender.sendMessage("§cPlayer " + mutedPlayer.getName() + "§r§a is already muted.");
+								} else {
+									gPlugin.getChatManager().mutePlayerIndividually(((Player) sender).getUniqueId(), mutedPlayer.getUniqueId(), true);
+									sender.sendMessage("§aYou have muted " + mutedPlayer.getName() + "§r§a.");
+								}
+							} else {
+								sender.sendMessage("Non-players can only mute players globally.");
+							}
 						}
+					}
+				} else {
+					if (hasPerm(sender, PERM_MUTE_LIST)) {
+						final boolean finalGlobal = global;
+						final CommandSender finalSender = sender;
+						gPlugin.getServer().getScheduler().runTaskAsynchronously(gPlugin, new Runnable() {
+
+							public void run() {
+								if (finalGlobal) {
+									if (hasPerm(finalSender, PERM_MUTE_GLOBAL)) {
+										finalSender.sendMessage("§9Globally muted players:");
+										finalSender.sendMessage("§8================================================");
+										for (UUID pid : gPlugin.getChatManager().getGloballyMutedPlayers()) {
+											finalSender.sendMessage("§8 * §f" + gPlugin.getUuidManager().getNameNowNoSave(pid));
+										}
+									}
+								} else {
+									if (finalSender instanceof Player) {
+										finalSender.sendMessage("§9Players muted by you:");
+										finalSender.sendMessage("§8================================================");
+										for (UUID pid : gPlugin.getChatManager().getIndividuallyMutedPlayers().get(((Player) finalSender).getUniqueId())) {
+											finalSender.sendMessage("§8 * §f" + gPlugin.getUuidManager().getNameNowNoSave(pid));
+										}
+									} else {
+										finalSender.sendMessage("Only players may mute other players.");
+									}
+								}
+							}
+						});
 					}
 				}
 			}
@@ -578,7 +637,7 @@ public final class HCommandExecutor implements CommandExecutor {
 	}
 
 	private void cmdUnmute(CommandSender sender, String[] args) {
-		if (hasPerm(sender, PERM_COMMAND_MUTE)) {
+		if (hasPerm(sender, PERM_COMMAND_UNMUTE)) {
 			if (args.length == 0) {
 				sender.sendMessage("§6Syntax: §r/unmute <player>");
 			} else {
@@ -625,45 +684,81 @@ public final class HCommandExecutor implements CommandExecutor {
 		}
 	}
 
+	private void cmdMuteall(CommandSender sender, String[] args) {
+		if (hasPerm(sender, PERM_COMMAND_MUTEALL)) {
+			if (gPlugin.getChatManager().isMuteAll()) {
+				sender.sendMessage("§cGlobal mute is already activated.");
+			} else {
+				gPlugin.getChatManager().setMuteAll(true);
+				sender.sendMessage("§aGlobal mute has been activated.");
+				sender.sendMessage("Only players with the specific permission might talk.");
+			}
+		}
+	}
+
+	private void cmdUnmuteall(CommandSender sender, String[] args) {
+		if (hasPerm(sender, PERM_COMMAND_UNMUTEALL)) {
+			if (!gPlugin.getChatManager().isMuteAll()) {
+				sender.sendMessage("§cGlobal mute is currently deactivated.");
+			} else {
+				gPlugin.getChatManager().setMuteAll(false);
+				sender.sendMessage("§aGlobal mute has been deactivated.");
+			}
+		}
+	}
+
 	private void cmdTell(CommandSender sender, String[] args) {
 		if (hasPerm(sender, PERM_COMMAND_TELL)) {
-			if (args.length < 2) {
-				sender.sendMessage("§6Syntax: §r/tell <player> <message>");
+			if (gPlugin.getChatManager().isMuteAll() && !sender.hasPermission(PERM_IMMUTABLE)) {
+				sender.sendMessage("§cGlobal mute is active and you are not allowed to talk.");
+			} else if (sender instanceof Player && gPlugin.getChatManager().isPlayerMutedGlobally(((Player) sender).getUniqueId())) {
+				sender.sendMessage("§cYou may not use this command because you are muted globally.");
+			} else if (sender instanceof Player && !gPlugin.getChatManager().getGroup(sender).getCanChat()) {
+				sender.sendMessage("§cYou may not use this command because you are not allowed to chat.");
 			} else {
-				CommandSender receiver;
-				if (args[0].equalsIgnoreCase("console"))
-					receiver = Bukkit.getConsoleSender();
-				else {
-					receiver = Bukkit.getPlayer(gPlugin.getUuidManager().getUuid(args[0]));
-					if (receiver == null) {
-						sender.sendMessage("§cPlayer not found: " + args[0]);
-						return;
+				if (args.length < 2) {
+					sender.sendMessage("§6Syntax: §r/tell <player> <message>");
+				} else {
+					CommandSender receiver;
+					if (args[0].equalsIgnoreCase("console"))
+						receiver = Bukkit.getConsoleSender();
+					else {
+						receiver = Bukkit.getPlayer(gPlugin.getUuidManager().getUuid(args[0]));
+						if (receiver == null) {
+							sender.sendMessage("§cPlayer not found: " + args[0]);
+							return;
+						}
 					}
-				}
-				String message = StringUtils.join(args, ' ', 1, args.length);
-				String senderText;
-				String receiverText;
-				String spyText;
-				if (gPlugin.getChatManager().getFormatTell()) {
-					senderText = gPlugin.getFormatManager().formatString(MessageType.TELL_SENDER, sender, receiver, message);
-					receiverText = gPlugin.getFormatManager().formatString(MessageType.TELL_RECEIVER, sender, receiver, message);
-					spyText = gPlugin.getFormatManager().formatString(MessageType.TELL_SPY, sender, receiver, message);
-				}
-				else {
-					senderText = String.format("[%s->%s] %s", sender.getName(), receiver.getName(), message);
-					receiverText = String.format("§7% whispers %s", sender.getName(), receiver.getName(), message);
-					spyText = String.format("[%s->%s] %s", sender.getName(), receiver.getName(), message);
-				}
-				if (gPlugin.getChatManager().getGroup(sender).getShowPersonalMessages()) {
-					Bukkit.getLogger().info("PM: [" + sender.getName() + "->" + receiver.getName() + "] " + message);
-					for (Player player : Bukkit.getOnlinePlayers()) {
-						if (player != sender && player.hasPermission(PERM_SPY))
-							player.sendMessage(spyText);
+
+					if (sender instanceof Player && receiver instanceof Player && gPlugin.getChatManager().isPlayerMutedIndividually(((Player) receiver).getUniqueId(), ((Player) sender).getUniqueId())) {
+						sender.sendMessage("§cYou may not use this command because that player has muted you.");
 					}
+
+					String message = StringUtils.join(args, ' ', 1, args.length);
+					String senderText;
+					String receiverText;
+					String spyText;
+					if (gPlugin.getChatManager().getFormatTell()) {
+						senderText = gPlugin.getFormatManager().formatString(MessageType.TELL_SENDER, sender, receiver, message);
+						receiverText = gPlugin.getFormatManager().formatString(MessageType.TELL_RECEIVER, sender, receiver, message);
+						spyText = gPlugin.getFormatManager().formatString(MessageType.TELL_SPY, sender, receiver, message);
+					}
+					else {
+						senderText = String.format("[%s->%s] %s", sender.getName(), receiver.getName(), message);
+						receiverText = String.format("§7% whispers %s", sender.getName(), receiver.getName(), message);
+						spyText = String.format("[%s->%s] %s", sender.getName(), receiver.getName(), message);
+					}
+					if (gPlugin.getChatManager().getGroup(sender).getShowPersonalMessages()) {
+						Bukkit.getLogger().info("PM: [" + sender.getName() + "->" + receiver.getName() + "] " + message);
+						for (Player player : Bukkit.getOnlinePlayers()) {
+							if (player != sender && player != receiver && player.hasPermission(PERM_SPY))
+								player.sendMessage(spyText);
+						}
+					}
+					if (sender != Bukkit.getConsoleSender())
+						sender.sendMessage(senderText);
+					receiver.sendMessage(receiverText);
 				}
-				if (sender != Bukkit.getConsoleSender())
-					sender.sendMessage(senderText);
-				receiver.sendMessage(receiverText);
 			}
 		}
 	}
