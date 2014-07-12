@@ -4,7 +4,6 @@ import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigBoolean;
 import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigList;
 import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigMap;
 import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigString;
-import static no.hon95.bukkit.hchat.util.ConfigUtil.removeIfSet;
 import static no.hon95.bukkit.hchat.util.ConfigUtil.saveYamlConf;
 
 import java.io.File;
@@ -70,6 +69,7 @@ public final class ConfigManager {
 
 		gPlugin.setEnable(getConfigBoolean(conf, null, "enable", true, change, true));
 		gPlugin.setCheckForUpdates(getConfigBoolean(conf, null, "check_for_updates", true, change, true));
+		gPlugin.setUpdateIfAvailable(getConfigBoolean(conf, null, "update_if_available", false, change, true));
 		gPlugin.getMetricsManager().setCollectData(getConfigBoolean(conf, null, "collect_data", true, change, true));
 		gPlugin.getChatManager().setFormatName(getConfigBoolean(conf, "format", "name", true, change, true));
 		gPlugin.getChatManager().setFormatChat(getConfigBoolean(conf, "format", "chat", true, change, true));
@@ -82,8 +82,6 @@ public final class ConfigManager {
 		gPlugin.getChatManager().setFormatMotd(getConfigBoolean(conf, "format", "motd", true, change, true));
 		gPlugin.getChatManager().setFormatMe(getConfigBoolean(conf, "format", "me", true, change, true));
 		gPlugin.getChatManager().setFormatTell(getConfigBoolean(conf, "format", "tell", true, change, true));
-
-		removeIfSet(conf, null, "update_if_available", change);
 
 		if (change.val)
 			saveYamlConf(conf, file);
@@ -101,14 +99,14 @@ public final class ConfigManager {
 		if (!file.isFile())
 			gGroupsChange.val = true;
 
-		HashSet<HGroup> groups = new HashSet<HGroup>();
-		HGroup defGroup = loadDefaultGroup(conf);
+		HashSet<Group> groups = new HashSet<Group>();
+		Group defGroup = loadDefaultGroup(conf);
 		groups.add(defGroup);
 		for (String group : conf.getKeys(false)) {
 			if (group.equalsIgnoreCase(DEFAULT_GROUP))
 				continue;
 			group = group.toLowerCase();
-			HGroup hgroup = loadGroup(conf, group, defGroup);
+			Group hgroup = loadGroup(conf, group, defGroup);
 			groups.add(hgroup);
 		}
 		gPlugin.getChatManager().setGroups(groups);
@@ -118,11 +116,11 @@ public final class ConfigManager {
 		gGroupsChange.val = false;
 	}
 
-	private HGroup loadDefaultGroup(Configuration conf) {
+	private Group loadDefaultGroup(Configuration conf) {
 		String group = DEFAULT_GROUP;
 		HashMap<String, String> worldChannels = new HashMap<String, String>();
 		worldChannels.put("example_world", "example_channel");
-		HGroup hgroup = new HGroup();
+		Group hgroup = new Group();
 		hgroup.setId(group);
 		hgroup.setName(ChatColor.translateAlternateColorCodes('&', getConfigString(conf, group, "name", group, gGroupsChange, true)));
 		hgroup.setPrefix(getConfigString(conf, group, "prefix", "", gGroupsChange, true));
@@ -149,8 +147,8 @@ public final class ConfigManager {
 		return hgroup;
 	}
 
-	private HGroup loadGroup(Configuration conf, String group, HGroup defGroup) {
-		HGroup hgroup = new HGroup();
+	private Group loadGroup(Configuration conf, String group, Group defGroup) {
+		Group hgroup = new Group();
 		hgroup.setId(group);
 		hgroup.setName(ChatColor.translateAlternateColorCodes('&', getConfigString(conf, group, "name", group, gGroupsChange, false)));
 		hgroup.setPrefix(getConfigString(conf, group, "prefix", defGroup.getPrefix(), gGroupsChange, false));
@@ -168,10 +166,10 @@ public final class ConfigManager {
 		hgroup.setTellReceiverFormat(getConfigString(conf, group, "format.tell_receiver", defGroup.getTellReceiverFormat(), gGroupsChange, false));
 		hgroup.setTellSpyFormat(getConfigString(conf, group, "format.tell_spy", defGroup.getTellSpyFormat(), gGroupsChange, false));
 		hgroup.setMotdFormat(getConfigList(conf, group, "format.motd", defGroup.getMotdFormat(), gGroupsChange, false));
-		hgroup.setCensor(getConfigBoolean(conf, group, "censor", defGroup.getCensor(), gGroupsChange, false));
-		hgroup.setColorCodes(getConfigBoolean(conf, group, "color_codes", defGroup.getColorCodes(), gGroupsChange, false));
-		hgroup.setCanChat(getConfigBoolean(conf, group, "can_chat", defGroup.getCanChat(), gGroupsChange, false));
-		hgroup.setShowPersonalMessages(getConfigBoolean(conf, group, "show_personal_messages", defGroup.getShowPersonalMessages(), gGroupsChange, false));
+		hgroup.setCensor(getConfigBoolean(conf, group, "censor", defGroup.isCensored(), gGroupsChange, false));
+		hgroup.setColorCodes(getConfigBoolean(conf, group, "color_codes", defGroup.allowColorCodes(), gGroupsChange, false));
+		hgroup.setCanChat(getConfigBoolean(conf, group, "can_chat", defGroup.canChat(), gGroupsChange, false));
+		hgroup.setShowPersonalMessages(getConfigBoolean(conf, group, "show_personal_messages", defGroup.showPersonalMessages(), gGroupsChange, false));
 		hgroup.setDefaultChannel(getConfigString(conf, group, "channel_default", defGroup.getDefaultChannel(), gChannelsChange, false));
 		hgroup.setDefaultWorldChannels(getConfigMap(conf, group, "channel_world_default", defGroup.getDefaultWorldChannels(), gGroupsChange, false));
 		return hgroup;
@@ -189,14 +187,14 @@ public final class ConfigManager {
 		if (!file.isFile())
 			gChannelsChange.val = true;
 
-		HashSet<HChannel> channels = new HashSet<HChannel>();
-		HChannel defChannel = loadChannel(gChannelsYaml, DEFAULT_CHANNEL);
+		HashSet<Channel> channels = new HashSet<Channel>();
+		Channel defChannel = loadChannel(gChannelsYaml, DEFAULT_CHANNEL);
 		channels.add(defChannel);
 		for (String channel : gChannelsYaml.getKeys(false)) {
 			if (channel.equalsIgnoreCase(DEFAULT_CHANNEL))
 				continue;
 			channel = channel.toLowerCase();
-			HChannel hchannel = loadChannel(gChannelsYaml, channel);
+			Channel hchannel = loadChannel(gChannelsYaml, channel);
 			channels.add(hchannel);
 		}
 		gPlugin.getChatManager().setChannels(channels);
@@ -206,7 +204,7 @@ public final class ConfigManager {
 		gChannelsChange.val = false;
 	}
 
-	private HChannel loadChannel(Configuration conf, String channel) {
+	private Channel loadChannel(Configuration conf, String channel) {
 		String id = channel;
 		String name = ChatColor.translateAlternateColorCodes('&', getConfigString(conf, channel, "name", channel, gChannelsChange, true));
 		String owner = getConfigString(conf, channel, "owner", "", gChannelsChange, true);
@@ -220,10 +218,10 @@ public final class ConfigManager {
 		List<String> members = getConfigList(conf, channel, "members", new ArrayList<String>(), gChannelsChange, true);
 		List<String> bannedMembers = getConfigList(conf, channel, "banned_members", new ArrayList<String>(), gChannelsChange, true);
 
-		return new HChannel(id, name, owner, password, chatFormat, isPrivate, isCensored, allowColorCodes, isUniversal, monitorChannels, members, bannedMembers);
+		return new Channel(id, name, owner, password, chatFormat, isPrivate, isCensored, allowColorCodes, isUniversal, monitorChannels, members, bannedMembers);
 	}
 
-	public void addChannel(HChannel channel) {
+	public void addChannel(Channel channel) {
 		if (channel == null)
 			throw new IllegalArgumentException();
 		String id = channel.getId();

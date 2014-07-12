@@ -139,10 +139,10 @@ public final class HCommandExecutor implements CommandExecutor {
 					for (String s : gPlugin.getChatManager().getChannels().keySet())
 						sender.sendMessage(s);
 				} else if (args.length > 1 && args[1].equalsIgnoreCase("players")) {
-					sender.sendMessage("§9hChat players §7(player : real group : group : channel)§9:");
+					sender.sendMessage("§9hChat players: §7(player : real group : group : channel)");
 					ChatManager cm = gPlugin.getChatManager();
 					for (Player p : Bukkit.getOnlinePlayers())
-						sender.sendMessage(p.getName() + " : " + cm.getRealGroup(sender) + " : " + cm.getGroup(p.getUniqueId()).getId() + " : " + cm.getChannel(p.getUniqueId()).getId());
+						sender.sendMessage(p.getName() + " §7|§f " + cm.getRealGroup(p) + " §7|§f " + cm.getGroup(p.getUniqueId()).getId() + " §7|§f " + cm.getChannel(p.getUniqueId()).getId());
 				} else {
 					sender.sendMessage("§6Syntax: §r/hchat list <groups|channels|players>");
 				}
@@ -192,7 +192,7 @@ public final class HCommandExecutor implements CommandExecutor {
 				Player player = (Player) sender;
 				if (args.length > 1) {
 					String channelId = args[1].toLowerCase();
-					HChannel channel = gPlugin.getChatManager().getChannelExact(channelId);
+					Channel channel = gPlugin.getChatManager().getChannelExact(channelId);
 					if (channel == null || channelId.equalsIgnoreCase(ChatManager.DEFAULT_CHANNEL_NAME)) {
 						sender.sendMessage("§cChannel not found: " + channelId);
 					} else if (channelId.equalsIgnoreCase(gPlugin.getChatManager().getPlayerChannel(player.getUniqueId()))) {
@@ -273,7 +273,7 @@ public final class HCommandExecutor implements CommandExecutor {
 				sender.sendMessage("§8================================================");
 				sender.sendMessage("§7(Use the ID in the parentheses to join channels etc)");
 				boolean any = false;
-				for (HChannel c : gPlugin.getChatManager().getChannels().values()) {
+				for (Channel c : gPlugin.getChatManager().getChannels().values()) {
 					ChannelResult cr = checkCannel(c, sender);
 					if ((cr.hasAccess && !showOnlyOwn && !c.getId().equalsIgnoreCase(ChatManager.DEFAULT_CHANNEL_NAME)) || showAll || cr.isOwner) {
 						sender.sendMessage(String.format("§8 * %s%s §7(%s)", cr.color, c.getName(), c.getId()));
@@ -284,7 +284,7 @@ public final class HCommandExecutor implements CommandExecutor {
 					sender.sendMessage("§8 * §7(none)");
 			} else {
 				sender.sendMessage("All channels (id (name)):");
-				for (HChannel c : gPlugin.getChatManager().getChannels().values())
+				for (Channel c : gPlugin.getChatManager().getChannels().values())
 					sender.sendMessage(String.format("%s (%s)", c.getId(), c.getName()));
 			}
 		}
@@ -293,12 +293,12 @@ public final class HCommandExecutor implements CommandExecutor {
 	private void cmdChannelInfo(final CommandSender sender, String[] args) {
 		if (hasPerm(sender, PERM_COMMAND_CHANNEL_INFO)) {
 			if (args.length == 1) {
-				HChannel channel = gPlugin.getChatManager().getChannel(sender);
+				Channel channel = gPlugin.getChatManager().getChannel(sender);
 				sender.sendMessage("§fYou are currently in channel " + channel.getName() + " §r§7(" + channel.getId() + ")§r.");
 				sender.sendMessage("§6Get info about a channel: §r/channel info <name>");
 			} else {
 				String channelId = args[1].toLowerCase();
-				final HChannel channel = gPlugin.getChatManager().getChannel(channelId).clone();
+				final Channel channel = gPlugin.getChatManager().getChannel(channelId).clone();
 				if (channel == null) {
 					sender.sendMessage("§cChannel not found: " + channelId);
 				} else {
@@ -316,7 +316,7 @@ public final class HCommandExecutor implements CommandExecutor {
 							if (channel.getOwner() != null && channel.getOwner().length() > 0) {
 								try {
 									UUID uuid = UUID.fromString(channel.getOwner());
-									ownerName = gPlugin.getUuidManager().getName(uuid) + " (" + uuid + ")";
+									ownerName = gPlugin.getPlayerName(uuid, true) + " (" + uuid + ")";
 								} catch (IllegalArgumentException ex) {
 									ownerName = "§ccMalformed UUID: " + channel.getOwner();
 								}
@@ -338,7 +338,7 @@ public final class HCommandExecutor implements CommandExecutor {
 										String title = cid;
 										if (cid.length() < 0)
 											title = "§cEmpty name!";
-										if (gPlugin.getChatManager().getChannelExact(cid) == null)
+										if (gPlugin.getChatManager().getChannelExact(cid.toLowerCase()) == null)
 											title = title + " §r§c(not found)";
 										sender.sendMessage("§9# §7* §f" + title);
 									} else {
@@ -374,7 +374,7 @@ public final class HCommandExecutor implements CommandExecutor {
 				String name = "§cEmpty name!";
 				if (pid.length() > 0) {
 					try {
-						name = gPlugin.getUuidManager().getNameNowNoSave(UUID.fromString(pid));
+						name = gPlugin.getPlayerName(UUID.fromString(pid), true);
 					} catch (IllegalArgumentException ex) {
 						name = "§cMalformed UUID: " + pid;
 					}
@@ -395,7 +395,7 @@ public final class HCommandExecutor implements CommandExecutor {
 			sender.sendMessage("");
 			sender.sendMessage("§9Channel player list:");
 			sender.sendMessage("§8================================================");
-			for (HChannel c : gPlugin.getChatManager().getChannels().values()) {
+			for (Channel c : gPlugin.getChatManager().getChannels().values()) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("§8 * §r").append(c.getName()).append("§r§8: §r");
 				Iterator<UUID> iter = gPlugin.getChatManager().getChannelPlayers(c.getId()).iterator();
@@ -422,7 +422,7 @@ public final class HCommandExecutor implements CommandExecutor {
 		if (hasPerm(sender, PERM_COMMAND_CHANNEL_CREATE)) {
 			if (args.length > 2) {
 				String channelId = args[1].toLowerCase();
-				HChannel channel = gPlugin.getChatManager().getChannelExact(channelId);
+				Channel channel = gPlugin.getChatManager().getChannelExact(channelId);
 				if (channel != null) {
 					sender.sendMessage("§cChannel already exists: " + channel.getName());
 				} else {
@@ -446,7 +446,7 @@ public final class HCommandExecutor implements CommandExecutor {
 					if (illegalArgs) {
 						sender.sendMessage("§cFailed to create channel because of illegal arguments.");
 					} else {
-						channel = new HChannel(channelId, owner, isPrivate);
+						channel = new Channel(channelId, owner, isPrivate);
 						gPlugin.getChatManager().addChannel(channel);
 						sender.sendMessage("§aSuccessfully created channel " + channel.getName() + "§a.");
 					}
@@ -461,7 +461,7 @@ public final class HCommandExecutor implements CommandExecutor {
 		if (hasPerm(sender, PERM_COMMAND_CHANNEL_DELETE)) {
 			if (args.length > 1) {
 				String channelId = args[1].toLowerCase();
-				HChannel channel = gPlugin.getChatManager().getChannelExact(channelId);
+				Channel channel = gPlugin.getChatManager().getChannelExact(channelId);
 				if (channel == null) {
 					sender.sendMessage("§cChannel doesn't exist: " + channelId);
 				} else {
@@ -490,12 +490,12 @@ public final class HCommandExecutor implements CommandExecutor {
 		if (hasPerm(sender, PERM_COMMAND_CHANNEL_EDIT)) {
 			if (args.length > 10) {
 				String channelId = args[1].toLowerCase();
-				HChannel channel = gPlugin.getChatManager().getChannelExact(channelId);
+				Channel channel = gPlugin.getChatManager().getChannelExact(channelId);
 				if (channel == null) {
 					sender.sendMessage("§cChannel doesn't exist: " + channelId);
 				} else {
 					sender.sendMessage("§7This feature is currently not implemented. The channels will have to be editet manually in the channels.yml file.");
-					// TODO stuff
+					// TODO edit
 					// gPlugin.getChatManager().updateChannel(HChannel channel);
 				}
 			} else {
@@ -534,7 +534,7 @@ public final class HCommandExecutor implements CommandExecutor {
 				sender.sendMessage("§cGlobal mute is active and you are not allowed to talk.");
 			} else if (sender instanceof Player && gPlugin.getChatManager().isPlayerMutedGlobally(((Player) sender).getUniqueId())) {
 				sender.sendMessage("§cYou may not use this command because you are muted globally.");
-			} else if (sender instanceof Player && !gPlugin.getChatManager().getGroup(sender).getCanChat()) {
+			} else if (sender instanceof Player && !gPlugin.getChatManager().getGroup(sender).canChat()) {
 				sender.sendMessage("§cYou may not use this command because you are not allowed to chat.");
 			} else {
 				if (args.length == 0) {
@@ -569,8 +569,9 @@ public final class HCommandExecutor implements CommandExecutor {
 				}
 
 				if (!list) {
-					String playerName = global ? args[1] : args[0];
-					Player mutedPlayer = Bukkit.getPlayer(gPlugin.getUuidManager().getUuid(playerName));
+					String playerName = (global ? args[1] : args[0]);
+					UUID pid = gPlugin.getPlayerUuid(playerName);
+					Player mutedPlayer = (pid != null ? Bukkit.getPlayer(pid) : null);
 					if (mutedPlayer == null) {
 						sender.sendMessage("§cPlayer not found: " + playerName);
 					} else if (mutedPlayer.hasPermission(PERM_IMMUTABLE)) {
@@ -614,7 +615,7 @@ public final class HCommandExecutor implements CommandExecutor {
 										finalSender.sendMessage("§9Globally muted players:");
 										finalSender.sendMessage("§8================================================");
 										for (UUID pid : gPlugin.getChatManager().getGloballyMutedPlayers()) {
-											finalSender.sendMessage("§8 * §f" + gPlugin.getUuidManager().getNameNowNoSave(pid));
+											finalSender.sendMessage("§8 * §f" + gPlugin.getPlayerName(pid, true));
 										}
 									}
 								} else {
@@ -622,7 +623,7 @@ public final class HCommandExecutor implements CommandExecutor {
 										finalSender.sendMessage("§9Players muted by you:");
 										finalSender.sendMessage("§8================================================");
 										for (UUID pid : gPlugin.getChatManager().getIndividuallyMutedPlayers().get(((Player) finalSender).getUniqueId())) {
-											finalSender.sendMessage("§8 * §f" + gPlugin.getUuidManager().getNameNowNoSave(pid));
+											finalSender.sendMessage("§8 * §f" + gPlugin.getPlayerName(pid, true));
 										}
 									} else {
 										finalSender.sendMessage("Only players may mute other players.");
@@ -641,14 +642,11 @@ public final class HCommandExecutor implements CommandExecutor {
 			if (args.length == 0) {
 				sender.sendMessage("§6Syntax: §r/unmute <player>");
 			} else {
-				String playerName = args[0];
-				boolean global = false;
-				if (args.length > 1 && args[0].equalsIgnoreCase("-g")) {
-					playerName = args[1];
-					global = true;
-				}
+				boolean global = (args.length > 1 && args[0].equalsIgnoreCase("-g"));
+				String playerName = (global ? args[1] : args[0]);
+				UUID pid = gPlugin.getPlayerUuid(playerName);
+				Player mutedPlayer = (pid != null ? Bukkit.getPlayer(pid) : null);
 
-				Player mutedPlayer = Bukkit.getPlayer(gPlugin.getUuidManager().getUuid(playerName));
 				if (mutedPlayer == null) {
 					sender.sendMessage("§cPlayer not found: " + playerName);
 				} else if (mutedPlayer.hasPermission(PERM_IMMUTABLE)) {
@@ -713,7 +711,7 @@ public final class HCommandExecutor implements CommandExecutor {
 				sender.sendMessage("§cGlobal mute is active and you are not allowed to talk.");
 			} else if (sender instanceof Player && gPlugin.getChatManager().isPlayerMutedGlobally(((Player) sender).getUniqueId())) {
 				sender.sendMessage("§cYou may not use this command because you are muted globally.");
-			} else if (sender instanceof Player && !gPlugin.getChatManager().getGroup(sender).getCanChat()) {
+			} else if (sender instanceof Player && !gPlugin.getChatManager().getGroup(sender).canChat()) {
 				sender.sendMessage("§cYou may not use this command because you are not allowed to chat.");
 			} else {
 				if (args.length < 2) {
@@ -723,7 +721,7 @@ public final class HCommandExecutor implements CommandExecutor {
 					if (args[0].equalsIgnoreCase("console"))
 						receiver = Bukkit.getConsoleSender();
 					else {
-						receiver = Bukkit.getPlayer(gPlugin.getUuidManager().getUuid(args[0]));
+						receiver = Bukkit.getPlayer(gPlugin.getPlayerUuid(args[0]));
 						if (receiver == null) {
 							sender.sendMessage("§cPlayer not found: " + args[0]);
 							return;
@@ -748,7 +746,7 @@ public final class HCommandExecutor implements CommandExecutor {
 						receiverText = String.format("§7% whispers %s", sender.getName(), receiver.getName(), message);
 						spyText = String.format("[%s->%s] %s", sender.getName(), receiver.getName(), message);
 					}
-					if (gPlugin.getChatManager().getGroup(sender).getShowPersonalMessages()) {
+					if (gPlugin.getChatManager().getGroup(sender).showPersonalMessages()) {
 						Bukkit.getLogger().info("PM: [" + sender.getName() + "->" + receiver.getName() + "] " + message);
 						for (Player player : Bukkit.getOnlinePlayers()) {
 							if (player != sender && player != receiver && player.hasPermission(PERM_SPY))
@@ -771,7 +769,7 @@ public final class HCommandExecutor implements CommandExecutor {
 		return true;
 	}
 
-	private ChannelResult checkCannel(HChannel channel, CommandSender sender) {
+	private ChannelResult checkCannel(Channel channel, CommandSender sender) {
 		ChannelResult cr = new ChannelResult();
 
 		if (sender instanceof Player) {

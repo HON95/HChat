@@ -37,8 +37,9 @@ public final class ChatManager {
 	private boolean gFormatMotd = true;
 	private boolean gFormatMe = true;
 	private boolean gFormatTell = true;
-	private final HashMap<String, HGroup> gGroups = new HashMap<String, HGroup>();
-	private final HashMap<String, HChannel> gChannels = new HashMap<String, HChannel>();
+	private final HashMap<String, Group> gGroups = new HashMap<String, Group>();
+	private final HashMap<String, Channel> gChannels = new HashMap<String, Channel>();
+	private final HashMap<UUID, String> gPlayerRealGroups = new HashMap<UUID, String>();
 	private final HashMap<UUID, String> gPlayerGroups = new HashMap<UUID, String>();
 	private final HashMap<UUID, String> gPlayerChannels = new HashMap<UUID, String>();
 	private final HashMap<String, String> gCensoredWords = new HashMap<String, String>();
@@ -59,6 +60,7 @@ public final class ChatManager {
 	public void unload() {
 		gPlayerGroups.clear();
 		gPlayerChannels.clear();
+		gPlayerRealGroups.clear();
 		gNameUpdatesPending.clear();
 	}
 
@@ -82,22 +84,25 @@ public final class ChatManager {
 		UUID id = player.getUniqueId();
 		gPlayerGroups.remove(id);
 		gPlayerChannels.remove(id);
+		gPlayerRealGroups.remove(id);
 		gIndividuallyMutedPlayers.remove(id);
 	}
 
+	//TODO test
 	public void updatePlayerGroup(Player player) {
-		String group = getPlayerGroup(player);
-		String oldGroup = gPlayerGroups.get(player.getUniqueId());
-		HGroup hgroup = getGroup(group);
-		if (oldGroup == null || !oldGroup.equalsIgnoreCase(hgroup.getId())) {
-			gPlayerGroups.put(player.getUniqueId(), hgroup.getId());
+		UUID uuid = player.getUniqueId();
+		String realGroup = calculatePlayerGroup(player);
+		String oldRealGroup = gPlayerRealGroups.get(uuid);
+		if (oldRealGroup == null || !oldRealGroup.equalsIgnoreCase(realGroup)) {
+			gPlayerRealGroups.put(uuid, realGroup);
+			gPlayerGroups.put(uuid, getGroup(realGroup).getId());
 			updatePlayerNames(player);
 		}
 	}
 
 	public void updatePlayerChannel(Player player) {
 		if (gPlayerChannels.get(player.getUniqueId()) == null) {
-			HGroup group = getGroup(player.getUniqueId());
+			Group group = getGroup(player.getUniqueId());
 			String channel = group.getDefaultWorldChannels().get(player.getWorld().getName().toLowerCase());
 			if (channel == null)
 				channel = group.getDefaultChannel();
@@ -108,12 +113,14 @@ public final class ChatManager {
 	}
 
 	public void doPendingNameUpdates() {
-		Iterator<Player> it = gNameUpdatesPending.iterator();
-		while (it.hasNext()) {
-			Player player = it.next();
-			if (player.isOnline())
-				updatePlayerNames(player);
-			it.remove();
+		if (gNameUpdatesPending.size() > 0) {
+			Iterator<Player> it = gNameUpdatesPending.iterator();
+			while (it.hasNext()) {
+				Player player = it.next();
+				if (player.isOnline())
+					updatePlayerNames(player);
+				it.remove();
+			}
 		}
 	}
 
@@ -121,31 +128,30 @@ public final class ChatManager {
 		gNameUpdatesPending.add(player);
 	}
 
-	public void setGroups(Set<HGroup> groups) {
+	public void setGroups(Set<Group> groups) {
 		gGroups.clear();
-		for (HGroup g : groups)
+		for (Group g : groups)
 			gGroups.put(g.getId(), g);
 	}
 
-	public void setChannels(Set<HChannel> channels) {
+	public void setChannels(Set<Channel> channels) {
 		gChannels.clear();
-		for (HChannel c : channels)
+		for (Channel c : channels)
 			gChannels.put(c.getId(), c);
 	}
 
-	public HGroup getGroup(CommandSender sender) {
+	public Group getGroup(CommandSender sender) {
 		if (sender instanceof Player)
 			return getGroup(((Player) sender).getUniqueId());
 		return getGroup(DEFAULT_GROUP_NAME);
 	}
 
-	public HGroup getGroup(UUID playerUuid) {
-		String playerGroup = gPlayerGroups.get(playerUuid);
-		return getGroup(playerGroup);
+	public Group getGroup(UUID playerUuid) {
+		return getGroup(gPlayerGroups.get(playerUuid));
 	}
 
-	public HGroup getGroup(String name) {
-		HGroup group = null;
+	public Group getGroup(String name) {
+		Group group = null;
 		if (name != null)
 			group = gGroups.get(name.toLowerCase());
 		if (group == null)
@@ -153,18 +159,30 @@ public final class ChatManager {
 		return group;
 	}
 
-	public HChannel getChannel(CommandSender sender) {
+	public Group getGroupExact(String name) {
+		if (name != null)
+			return gGroups.get(name.toLowerCase());
+		return null;
+	}
+
+	public String getPlayerGroup(UUID id) {
+		if (id == null)
+			return null;
+		return gPlayerGroups.get(id);
+	}
+
+	public Channel getChannel(CommandSender sender) {
 		if (sender instanceof Player)
 			return getChannel(((Player) sender).getUniqueId());
 		return getChannel(DEFAULT_CHANNEL_NAME);
 	}
 
-	public HChannel getChannel(UUID playerUuid) {
+	public Channel getChannel(UUID playerUuid) {
 		return getChannel(gPlayerChannels.get(playerUuid));
 	}
 
-	public HChannel getChannel(String name) {
-		HChannel channel = null;
+	public Channel getChannel(String name) {
+		Channel channel = null;
 		if (name != null)
 			channel = gChannels.get(name.toLowerCase());
 		if (channel == null)
@@ -172,20 +190,20 @@ public final class ChatManager {
 		return channel;
 	}
 
-	public HChannel getChannelExact(String name) {
-		return gChannels.get(name.toLowerCase());
-	}
-
-	public String getRealGroup(CommandSender sender) {
-		if (sender instanceof Player)
-			return getPlayerGroup(((Player) sender));
-		return null;
+	public Channel getChannelExact(String name) {
+		return gChannels.get(name);
 	}
 
 	public String getPlayerChannel(UUID id) {
 		if (id == null)
 			return null;
 		return gPlayerChannels.get(id);
+	}
+
+	public String getRealGroup(CommandSender sender) {
+		if (sender instanceof Player)
+			return gPlayerRealGroups.get(((Player) sender).getUniqueId());
+		return null;
 	}
 
 	public void changePlayerChannel(UUID player, String channel, boolean announce) {
@@ -202,7 +220,7 @@ public final class ChatManager {
 		gPlayerChannels.put(player, getChannel(channel).getId());
 	}
 
-	public void addChannel(HChannel channel) {
+	public void addChannel(Channel channel) {
 		if (channel == null || channel.getId() == null)
 			throw new IllegalArgumentException("Channel ID can not be null.");
 		channel.setId(channel.getId().toLowerCase());
@@ -215,13 +233,13 @@ public final class ChatManager {
 		if (channelId == null)
 			throw new IllegalArgumentException("Channel ID can not be null.");
 		channelId = channelId.toLowerCase();
-		HChannel channel = gChannels.get(channelId);
+		Channel channel = gChannels.get(channelId);
 		if (channel != null) {
 			for (UUID pid : getChannelPlayers(channelId)) {
 				changePlayerChannel(pid, null, true);
 				Player player = Bukkit.getPlayer(pid);
 				if (player != null)
-					player.sendMessage("You have left channel " + channel.getName() + "§f because the channel was removed.");
+					player.sendMessage("You have left channel " + channel.getName() + "ï¿½f because the channel was removed.");
 			}
 			gChannels.remove(channelId);
 			gPlugin.getConfigManager().removeChannel(channelId);
@@ -278,19 +296,21 @@ public final class ChatManager {
 		if (gFormatName)
 			player.setDisplayName(gPlugin.getFormatManager().formatString(MessageType.NAME, player, null, null));
 		if (gFormatList)
-			player.setPlayerListName(gPlugin.getFormatManager().formatString(MessageType.NAME, player, null, null));
+			player.setPlayerListName(gPlugin.getFormatManager().formatString(MessageType.LIST, player, null, null));
 	}
 
 	//// MISC ////
 
-	public String getPlayerGroup(Player player) {
+	public String calculatePlayerGroup(Player player) {
 		String chosenGroup = null;
-		for (String group : gPlugin.getVault().getPlayerGroups(player)) {
-			if (getGroups().containsKey(group))
+		for (String group : gPlugin.getVault().getGroups(player)) {
+			if (getGroups().containsKey(group)) {
 				chosenGroup = group;
+				break;
+			}
 		}
 		if (chosenGroup == null)
-			chosenGroup = gPlugin.getVault().getPlayerGroup(player);
+			chosenGroup = gPlugin.getVault().getGroup(player);
 		return chosenGroup;
 	}
 
@@ -299,9 +319,9 @@ public final class ChatManager {
 	public void onChat(AsyncPlayerChatEvent ev) {
 		if (!ev.isCancelled()) {
 			Player sender = ev.getPlayer();
-			HGroup group = getGroup(sender.getUniqueId());
+			Group group = getGroup(sender.getUniqueId());
 
-			if (!group.getCanChat()) {
+			if (!group.canChat()) {
 				ev.setCancelled(true);
 				sender.sendMessage(ChatColor.RED + "You are not allowed to chat!");
 			} else if (isPlayerMutedGlobally(sender.getUniqueId()) && !sender.hasPermission(PERM_IMMUTABLE)) {
@@ -311,16 +331,16 @@ public final class ChatManager {
 				ev.setCancelled(true);
 				sender.sendMessage(ChatColor.RED + "Everyone except a few are currently muted.");
 			} else {
-				HChannel channel = getChannel(sender.getUniqueId());
+				Channel channel = getChannel(sender.getUniqueId());
 				String format = ev.getFormat();
 				String message = ev.getMessage();
 				if (gFormatChat) {
 					format = gPlugin.getFormatManager().formatString(MessageType.CHAT, sender, null, null);
 					ev.setFormat(format);
 				}
-				if (group.getCensor() || channel.isCensored())
+				if (group.isCensored() || channel.isCensored())
 					message = ChatCensor.censor(message, getCensoredWords());
-				if (group.getColorCodes() || channel.allowColorCodes())
+				if (group.allowColorCodes() || channel.allowColorCodes())
 					message = ChatColor.translateAlternateColorCodes('&', message);
 				ev.setMessage(message);
 
@@ -330,7 +350,7 @@ public final class ChatManager {
 					if (recipient != null)
 						newRecipients.add(recipient);
 				}
-				for (HChannel c : gChannels.values()) {
+				for (Channel c : gChannels.values()) {
 					if (!c.getId().equalsIgnoreCase(channel.getId())) {
 						if (c.getMonitorChannels() != null && c.getMonitorChannels().contains(channel.getId())) {
 							for (UUID pid : getChannelPlayers(c.getId())) {
@@ -464,11 +484,11 @@ public final class ChatManager {
 		return gCensoredWords;
 	}
 
-	public Map<String, HGroup> getGroups() {
+	public Map<String, Group> getGroups() {
 		return gGroups;
 	}
 
-	public Map<String, HChannel> getChannels() {
+	public Map<String, Channel> getChannels() {
 		return gChannels;
 	}
 

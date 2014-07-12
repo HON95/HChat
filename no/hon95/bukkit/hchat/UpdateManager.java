@@ -15,12 +15,11 @@ public final class UpdateManager {
 
 	private final HChatPlugin gPlugin;
 	private final int gApiKey;
-	private final File gFolder;
+	private File gFolder = null;
 
-	public UpdateManager(HChatPlugin plugin, int apiKey, File folder) {
+	public UpdateManager(HChatPlugin plugin, int apiKey) {
 		gPlugin = plugin;
 		gApiKey = apiKey;
-		gFolder = folder;
 	}
 
 	public void checkForUpdates(boolean update, CommandSender commandSender) {
@@ -56,5 +55,9 @@ public final class UpdateManager {
 		}
 		if (commandSender != null && (commandSender != Bukkit.getConsoleSender() || silent))
 			commandSender.sendMessage("§7[hChat] " + message);
+	}
+
+	public void setFolder(File folder) {
+		gFolder = folder;
 	}
 }

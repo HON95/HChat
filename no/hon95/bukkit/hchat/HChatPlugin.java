@@ -12,11 +12,14 @@ import static no.hon95.bukkit.hchat.HChatCommands.CMD_UNMUTE;
 import static no.hon95.bukkit.hchat.HChatCommands.CMD_UNMUTEALL;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import no.hon95.bukkit.hchat.format.FormatManager;
 import no.hon95.bukkit.hchat.hook.RacesAndClassesHook;
 import no.hon95.bukkit.hchat.hook.VaultHook;
+import no.hon95.bukkit.hchat.util.evilmidget38.NameFetcher;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,8 +29,8 @@ public final class HChatPlugin extends JavaPlugin {
 
 	private static final int SERVER_MODS_API_ID = 77039;
 	private static final long TASK_PERIOD_UPDATE = 20L;
-	private static final long TASK_PERIOD_UPDATE_PENDING_NAMES = 5L;
-	private static final long TASK_PERIOD_CHECK_FOR_UPDATES = 3600 * 20L;
+	private static final long TASK_PERIOD_UPDATE_PENDING_NAMES = 1L;
+	private static final long TASK_PERIOD_CHECK_FOR_UPDATES = 3 * 3600 * 20L;
 
 	private final ConfigManager gConfigManager = new ConfigManager(this);
 	private final PlayerListener gPlayerListener = new PlayerListener(this);
@@ -35,18 +38,19 @@ public final class HChatPlugin extends JavaPlugin {
 	private final ChatManager gChatManager = new ChatManager(this);
 	private final FormatManager gFormatManager = new FormatManager(this);
 	private final MetricsManager gMetricsManager = new MetricsManager(this);
-	private final UuidManager gUuidManager = new UuidManager();
 	private final VaultHook gVaultHook = new VaultHook(this);
 	private final RacesAndClassesHook gRACHook = new RacesAndClassesHook(this);
-	private UpdateManager gUpdateManager;
+	private final UpdateManager gUpdateManager = new UpdateManager(this, SERVER_MODS_API_ID);
+	private final HChatAPI gApi = new HChatAPI(this);
 
 	private boolean gEnable = true;
 	private boolean gCheckForUpdates = true;
+	private boolean gUpdateIfAvailable = true;
 
 	@Override
 	public void onLoad() {
+		gUpdateManager.setFolder(getFile());
 		gConfigManager.load();
-		gUpdateManager = new UpdateManager(this, SERVER_MODS_API_ID, getFile());
 		gMetricsManager.load();
 	}
 
@@ -54,15 +58,14 @@ public final class HChatPlugin extends JavaPlugin {
 	public void onEnable() {
 		if (gEnable) {
 			registerListenersAndCommands();
-			loadHooks();
 			loadUuids();
+			loadHooks();
 			gChatManager.load();
 			gMetricsManager.start();
 			setupTasks();
 		} else {
 			getLogger().warning("Plugin disabled by config.");
 			getPluginLoader().disablePlugin(this);
-			return;
 		}
 	}
 
@@ -95,7 +98,6 @@ public final class HChatPlugin extends JavaPlugin {
 		ArrayList<UUID> uuids = new ArrayList<UUID>();
 		for (Player p : getServer().getOnlinePlayers())
 			uuids.add(p.getUniqueId());
-		gUuidManager.loadNames(uuids);
 	}
 
 	private void setupTasks() {
@@ -113,12 +115,43 @@ public final class HChatPlugin extends JavaPlugin {
 		if (gCheckForUpdates) {
 			getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
 				public void run() {
-					gUpdateManager.checkForUpdates(false, null);
+					gUpdateManager.checkForUpdates(gUpdateIfAvailable, null);
 				}
 			}, 0, TASK_PERIOD_CHECK_FOR_UPDATES);
 		} else {
 			getLogger().info("Update checking has been disabled.");
 		}
+	}
+
+	public UUID getPlayerUuid(String name) {
+		for (Player p : getServer().getOnlinePlayers()) {
+			if (p.getName().equalsIgnoreCase(name))
+				return p.getUniqueId();
+		}
+		return null;
+	}
+
+	public String getPlayerName(UUID uuid, boolean downloadIfNecessary) {
+		String name = null;
+		Player player = getServer().getPlayer(uuid);
+		if (player != null)
+			name = player.getName();
+		if (name == null && downloadIfNecessary) {
+			ArrayList<UUID> list = new ArrayList<UUID>();
+			list.add(uuid);
+			try {
+				Map<UUID, String> names = new NameFetcher(list).call();
+				for (Entry<UUID, String> e : names.entrySet()) {
+					if (e.getKey().equals(uuid)) {
+						name = e.getValue();
+						break;
+					}
+				}
+			} catch (Exception ex) {
+				getLogger().warning("Failed to download a name because of: " + ex.getLocalizedMessage());
+			}
+		}
+		return name;
 	}
 
 	public int getServerModsApiKey() {
@@ -141,12 +174,12 @@ public final class HChatPlugin extends JavaPlugin {
 		return gMetricsManager;
 	}
 
-	public UuidManager getUuidManager() {
-		return gUuidManager;
-	}
-
 	public UpdateManager getUpdateManager() {
 		return gUpdateManager;
+	}
+
+	public HChatAPI getApi() {
+		return gApi;
 	}
 
 	public VaultHook getVault() {
@@ -163,5 +196,9 @@ public final class HChatPlugin extends JavaPlugin {
 
 	public void setCheckForUpdates(boolean checkForUpdates) {
 		gCheckForUpdates = checkForUpdates;
+	}
+
+	public void setUpdateIfAvailable(boolean updateIfAvailable) {
+		gUpdateIfAvailable = updateIfAvailable;
 	}
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class HChannel implements Cloneable {
+public class Channel implements Cloneable {
 
 	private String gId = null;
 	private String gName = null;
@@ -19,15 +19,15 @@ public class HChannel implements Cloneable {
 	private List<String> gMembers = null;
 	private List<String> gBannedMembers = null;
 
-	public HChannel(String id, String owner, boolean isPrivate) {
+	public Channel(String id, String owner, boolean isPrivate) {
 		this(id, id, owner, null, null, isPrivate, false, true, true);
 	}
 
-	public HChannel(String id, String name, String owner, String password, String chatFormat, boolean isPrivate, boolean isCensored, boolean allowColorCodes, boolean isUniversal) {
+	public Channel(String id, String name, String owner, String password, String chatFormat, boolean isPrivate, boolean isCensored, boolean allowColorCodes, boolean isUniversal) {
 		this(id, name, owner, password, chatFormat, isPrivate, isCensored, allowColorCodes, isUniversal, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
 	}
 
-	public HChannel(String id, String name, String owner, String password, String chatFormat, boolean isPrivate, boolean isCensored, boolean allowColorCodes, boolean isUniversal,
+	public Channel(String id, String name, String owner, String password, String chatFormat, boolean isPrivate, boolean isCensored, boolean allowColorCodes, boolean isUniversal,
 			List<String> monitorChannels, List<String> members, List<String> bannedMembers) {
 		gId = id;
 		gName = name;
@@ -44,8 +44,8 @@ public class HChannel implements Cloneable {
 	}
 
 	@Override
-	public HChannel clone() {
-		return new HChannel(gId, gName, gOwner, gPassword, gChatFormat, gIsPrivate, gIsCensored, gAllowColorCodes, gIsUniversal,
+	public Channel clone() {
+		return new Channel(gId, gName, gOwner, gPassword, gChatFormat, gIsPrivate, gIsCensored, gAllowColorCodes, gIsUniversal,
 				new ArrayList<String>(gMonitorChannels), new ArrayList<String>(gMembers), new ArrayList<String>(gBannedMembers));
 	}
 

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class HGroup {
+public class Group {
 
 	private String gId = null;
 	private String gName = null;
@@ -98,19 +98,19 @@ public class HGroup {
 		return gMotdFormat;
 	}
 
-	public boolean getCensor() {
+	public boolean isCensored() {
 		return gCensor;
 	}
 
-	public boolean getColorCodes() {
+	public boolean allowColorCodes() {
 		return gColorCodes;
 	}
 
-	public boolean getCanChat() {
+	public boolean canChat() {
 		return gCanChat;
 	}
 
-	public boolean getShowPersonalMessages() {
+	public boolean showPersonalMessages() {
 		return gShowPersonalMessages;
 	}
 

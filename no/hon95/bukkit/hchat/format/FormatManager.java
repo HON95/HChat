@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import no.hon95.bukkit.hchat.HChatPlugin;
-import no.hon95.bukkit.hchat.HGroup;
+import no.hon95.bukkit.hchat.Group;
 import no.hon95.bukkit.hchat.format.Formatter.MessageType;
 
 import org.bukkit.command.CommandSender;
@@ -14,15 +14,12 @@ import org.bukkit.command.CommandSender;
 public final class FormatManager {
 
 	private final HashSet<Formatter> gFormatters = new HashSet<Formatter>();
-	private LastFormatter gLastFormatter;
+	private DefaultFormatter gDefaultFormatter;
 	private HChatPlugin gPlugin;
 
 	public FormatManager(HChatPlugin plugin) {
 		gPlugin = plugin;
-
-		gLastFormatter = new LastFormatter();
-
-		gFormatters.add(new DefaultFormatter(plugin));
+		gDefaultFormatter = new DefaultFormatter(plugin);
 		gFormatters.add(new RacesAndClassesFormatter(plugin));
 	}
 
@@ -30,7 +27,7 @@ public final class FormatManager {
 		String result = getFormatString(type, sender);
 		for (Formatter formatter : gFormatters)
 			result = formatter.format(type, result, sender, receiver, message);
-		result = gLastFormatter.format(type, result, sender, receiver, message);
+		result = gDefaultFormatter.format(type, result, sender, receiver, message);
 		return result;
 	}
 
@@ -38,14 +35,14 @@ public final class FormatManager {
 		List<String> result = getFormatList(type, sender);
 		for (Formatter formatter : gFormatters)
 			result = formatter.format(type, result, sender, receiver, message);
-		result = gLastFormatter.format(type, result, sender, receiver, message);
+		result = gDefaultFormatter.format(type, result, sender, receiver, message);
 		return result;
 	}
 
 	public final String getFormatString(MessageType type, CommandSender sender) {
 		if (type == null || sender == null)
 			throw new IllegalArgumentException();
-		HGroup group = gPlugin.getChatManager().getGroup(sender);
+		Group group = gPlugin.getChatManager().getGroup(sender);
 		String format = null;
 		switch (type) {
 		case NAME:
@@ -97,7 +94,7 @@ public final class FormatManager {
 	public final List<String> getFormatList(MessageType type, CommandSender sender) {
 		if (type == null || sender == null)
 			throw new IllegalArgumentException();
-		HGroup group = gPlugin.getChatManager().getGroup(sender);
+		Group group = gPlugin.getChatManager().getGroup(sender);
 		List<String> format = null;
 		switch (type) {
 		case MOTD:

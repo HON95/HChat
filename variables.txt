@@ -5,8 +5,8 @@ b:
 B:
 c: channel name
 C:
-d:
-D:
+d: money
+D: money unformatted
 e:
 E:
 f: food level (percent)
@@ -43,7 +43,7 @@ u:
 U:
 v: bukkit version
 V:
-w:
+w: world name
 W:
 x: x location (int)
 X:

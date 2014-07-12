@@ -9,6 +9,8 @@ import de.tobiyas.racesandclasses.datacontainer.traitholdercontainer.AbstractTra
 
 public final class RacesAndClassesHook implements Hook {
 
+	private static final String CLASS = "de.tobiyas.racesandclasses.RacesAndClasses";
+
 	private HChatPlugin gPlugin;
 	private RacesAndClasses gOtherPlugin = null;
 
@@ -19,17 +21,17 @@ public final class RacesAndClassesHook implements Hook {
 	@Override
 	public boolean hook() {
 		try {
-			Class.forName("de.tobiyas.racesandclasses.RacesAndClasses");
-			gPlugin.getLogger().info("Hooking RacesAndClasses.");
+			Class.forName(CLASS);
 			gOtherPlugin = RacesAndClasses.getPlugin();
 			if (gOtherPlugin == null) {
-				gPlugin.getLogger().warning("Failed to hook into RacesAndClasses!");
+				gPlugin.getLogger().warning("Failed to hook RacesAndClasses!");
 				return false;
 			}
+			gPlugin.getLogger().info("Hooked RacesAndClasses.");
+			return true;
 		} catch (Exception ex) {
 			return false;
 		}
-		return true;
 	}
 
 	@Override
@@ -41,13 +43,13 @@ public final class RacesAndClassesHook implements Hook {
 		if (gOtherPlugin == null)
 			return null;
 		AbstractTraitHolder holder = gOtherPlugin.getClassManager().getHolderOfPlayer(player);
-		return holder != null ? holder.getName() : null; //FIXME
+		return holder != null ? holder.getName() : null;
 	}
 
 	public String getRace(UUID player) {
 		if (gOtherPlugin == null)
 			return null;
 		AbstractTraitHolder holder = gOtherPlugin.getRaceManager().getHolderOfPlayer(player);
-		return holder != null ? holder.getName() : null; //FIXME
+		return holder != null ? holder.getName() : null;
 	}
 }
