@@ -46,11 +46,11 @@ public final class DefaultFormatter extends Formatter {
 			break;
 		case 'd':
 			if (player != null)
-				result = gPlugin.getVault().getCurrencyString(player);
+				result = gPlugin.getVaultEconomy().getCurrencyString(player);
 			break;
 		case 'D':
 			if (player != null) {
-				double currency = gPlugin.getVault().getCurrency(player);
+				double currency = gPlugin.getVaultEconomy().getCurrency(player);
 				result = String.format("%.0f", currency);
 			}
 			break;

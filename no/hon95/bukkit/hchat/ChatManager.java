@@ -88,7 +88,6 @@ public final class ChatManager {
 		gIndividuallyMutedPlayers.remove(id);
 	}
 
-	//TODO test
 	public void updatePlayerGroup(Player player) {
 		UUID uuid = player.getUniqueId();
 		String realGroup = calculatePlayerGroup(player);
@@ -303,14 +302,19 @@ public final class ChatManager {
 
 	public String calculatePlayerGroup(Player player) {
 		String chosenGroup = null;
-		for (String group : gPlugin.getVault().getGroups(player)) {
-			if (getGroups().containsKey(group)) {
-				chosenGroup = group;
-				break;
+		if (gPlugin.getVaultPermission().isHooked()) {
+			String[] groups = gPlugin.getVaultPermission().getGroups(player);
+			if (groups != null) {
+				for (String group : gPlugin.getVaultPermission().getGroups(player)) {
+					if (getGroups().containsKey(group)) {
+						chosenGroup = group;
+						break;
+					}
+				}
 			}
+			if (chosenGroup == null)
+				chosenGroup = gPlugin.getVaultPermission().getGroup(player);
 		}
-		if (chosenGroup == null)
-			chosenGroup = gPlugin.getVault().getGroup(player);
 		return chosenGroup;
 	}
 

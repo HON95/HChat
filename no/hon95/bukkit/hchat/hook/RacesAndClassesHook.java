@@ -42,14 +42,22 @@ public final class RacesAndClassesHook implements Hook {
 	public String getClass(UUID player) {
 		if (gOtherPlugin == null)
 			return null;
-		AbstractTraitHolder holder = gOtherPlugin.getClassManager().getHolderOfPlayer(player);
-		return holder != null ? holder.getName() : null;
+		try {
+			AbstractTraitHolder holder = gOtherPlugin.getClassManager().getHolderOfPlayer(player);
+			return holder != null ? holder.getName() : null;
+		} catch (Exception ex) {
+			return null;
+		}
 	}
 
 	public String getRace(UUID player) {
 		if (gOtherPlugin == null)
 			return null;
-		AbstractTraitHolder holder = gOtherPlugin.getRaceManager().getHolderOfPlayer(player);
-		return holder != null ? holder.getName() : null;
+		try {
+			AbstractTraitHolder holder = gOtherPlugin.getRaceManager().getHolderOfPlayer(player);
+			return holder != null ? holder.getName() : null;
+		} catch (Exception ex) {
+			return null;
+		}
 	}
 }

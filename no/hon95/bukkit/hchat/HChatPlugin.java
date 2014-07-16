@@ -18,7 +18,8 @@ import java.util.UUID;
 
 import no.hon95.bukkit.hchat.format.FormatManager;
 import no.hon95.bukkit.hchat.hook.RacesAndClassesHook;
-import no.hon95.bukkit.hchat.hook.VaultHook;
+import no.hon95.bukkit.hchat.hook.VaultEconomyHook;
+import no.hon95.bukkit.hchat.hook.VaultPermissionHook;
 import no.hon95.bukkit.hchat.util.evilmidget38.NameFetcher;
 
 import org.bukkit.entity.Player;
@@ -38,7 +39,8 @@ public final class HChatPlugin extends JavaPlugin {
 	private final ChatManager gChatManager = new ChatManager(this);
 	private final FormatManager gFormatManager = new FormatManager(this);
 	private final MetricsManager gMetricsManager = new MetricsManager(this);
-	private final VaultHook gVaultHook = new VaultHook(this);
+	private final VaultPermissionHook gVaultPermHook = new VaultPermissionHook(this);
+	private final VaultEconomyHook gVaultEconHook = new VaultEconomyHook(this);
 	private final RacesAndClassesHook gRACHook = new RacesAndClassesHook(this);
 	private final UpdateManager gUpdateManager = new UpdateManager(this, SERVER_MODS_API_ID);
 	private final HChatAPI gApi = new HChatAPI(this);
@@ -90,7 +92,8 @@ public final class HChatPlugin extends JavaPlugin {
 	}
 
 	private void loadHooks() {
-		gVaultHook.hook();
+		gVaultPermHook.hook();
+		gVaultEconHook.hook();
 		gRACHook.hook();
 	}
 
@@ -182,8 +185,12 @@ public final class HChatPlugin extends JavaPlugin {
 		return gApi;
 	}
 
-	public VaultHook getVault() {
-		return gVaultHook;
+	public VaultPermissionHook getVaultPermission() {
+		return gVaultPermHook;
+	}
+
+	public VaultEconomyHook getVaultEconomy() {
+		return gVaultEconHook;
 	}
 
 	public RacesAndClassesHook getRacesAndClassesHook() {

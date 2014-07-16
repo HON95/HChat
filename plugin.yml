@@ -1,6 +1,6 @@
 name: hChat
 main: no.hon95.bukkit.hchat.HChatPlugin
-version: 1.4.3
+version: 1.4.4
 author: HON95
 description: Chat formatter.
 softdepend: [Vault,RacesAndClasses]
