@@ -1,6 +1,6 @@
 name: hChat
 main: no.hon95.bukkit.hchat.HChatPlugin
-version: 1.4.4
+version: 1.4.5
 author: HON95
 description: Chat formatter.
 softdepend: [Vault,RacesAndClasses]
@@ -32,27 +32,29 @@ permissions:
         description: All hChat permissions.
         default: op
         children:
-          hchat.command: true
-          hchat.command.channel: true
-          hchat.command.clearchat: true
-          hchat.command.colors: true
-          hchat.command.me: true
-          hchat.command.mute: true
-          hchat.command.unmute: true
-          hchat.command.tell: true
-          hchat.reload: true
-          hchat.list: true
-          hchat.unclearable: true
-          hchat.spy: true
-          hchat.immutable: true
-          hchat.mute.global: true
-          hchat.channel.*: true
+            hchat.command: true
+            hchat.command.channel: true
+            hchat.command.clearchat: true
+            hchat.command.colors: true
+            hchat.command.me: true
+            hchat.command.mute: true
+            hchat.command.unmute: true
+            hchat.command.tell: true
+            hchat.command.channel.edit.*: true
+            hchat.reload: true
+            hchat.list: true
+            hchat.unclearable: true
+            hchat.spy: true
+            hchat.immutable: true
+            hchat.mute.global: true
+            hchat.channel.*: true
+            hchat.modifyallchannels: true
     hchat.command.hchat:
         description: For all subcommands of command hchat.
         children:
-          hchat.command.hchat.reload: true
-          hchat.command.hchat.list: true
-          hchat.command.hchat.update: true
+            hchat.command.hchat.reload: true
+            hchat.command.hchat.list: true
+            hchat.command.hchat.update: true
     hchat.command.hchat.reload:
         description: Reload HChat.
     hchat.command.hchat.list:
@@ -62,14 +64,14 @@ permissions:
     hchat.command.channel:
         description: For all subcommands of command channel.
         children:
-          hchat.command.channel.join: true
-          hchat.command.channel.leave: true
-          hchat.command.channel.list: true
-          hchat.command.channel.info: true
-          hchat.command.channel.who: true
-          hchat.command.channel.create: true
-          hchat.command.channel.delete: true
-          hchat.command.channel.edit: true
+            hchat.command.channel.join: true
+            hchat.command.channel.leave: true
+            hchat.command.channel.list: true
+            hchat.command.channel.info: true
+            hchat.command.channel.who: true
+            hchat.command.channel.create: true
+            hchat.command.channel.delete: true
+            hchat.command.channel.edit: true
     hchat.command.channel.join:
         description: Join a channel.
     hchat.command.channel.leave:
@@ -86,6 +88,42 @@ permissions:
         description: Delete a channel.
     hchat.command.channel.edit:
         description: Edit a channel.
+    hchat.command.channel.edit.*:
+        description: Edit all channel properties.
+        children:
+            hchat.command.channel.edit.name: true
+            hchat.command.channel.edit.owner: true
+            hchat.command.channel.edit.password: true
+            hchat.command.channel.edit.chatformat: true
+            hchat.command.channel.edit.private: true
+            hchat.command.channel.edit.censored: true
+            hchat.command.channel.edit.colorcodes: true
+            hchat.command.channel.edit.universal: true
+            hchat.command.channel.edit.monitorchannels: true
+            hchat.command.channel.edit.members: true
+            hchat.command.channel.edit.bannedmembers: true
+    hchat.command.channel.edit.name:
+        description: Edit a channels name.
+    hchat.command.channel.edit.owner:
+        description: Edit a channels owner.
+    hchat.command.channel.edit.password:
+        description: Edit a channels password.
+    hchat.command.channel.edit.chatformat:
+        description: Edit a channels chat format.
+    hchat.command.channel.edit.private:
+        description: Edit a channels privacy.
+    hchat.command.channel.edit.censored:
+        description: Edit a channels censor setting.
+    hchat.command.channel.edit.colorcodes:
+        description: Edit a channels color code allowance.
+    hchat.command.channel.edit.universal:
+        description: Edit a channels universal setting.
+    hchat.command.channel.edit.monitorchannels:
+        description: Edit a channels monitored channels.
+    hchat.command.channel.edit.members:
+        description: Edit a channels members.
+    hchat.command.channel.edit.bannedmembers:
+        description: Edit a channels banned members.
     hchat.command.clearchat:
         description: For clearchat command.
     hchat.command.colors:
@@ -116,3 +154,5 @@ permissions:
         description: Access to all channels as a member.
     hchat.notify.update:
         description: Get notified if a plugin update has been found.
+    hchat.modifyallchannels:
+        description: Modify all channels.

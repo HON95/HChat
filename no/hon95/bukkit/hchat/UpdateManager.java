@@ -50,11 +50,11 @@ public final class UpdateManager {
 			gPlugin.getLogger().info(message);
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				if (player.hasPermission(PERM_NOTIFY_UPDATE))
-					player.sendMessage("§7[hChat] " + message);
+					player.sendMessage("§8[§9hChat§8] §f" + message);
 			}
 		}
 		if (commandSender != null && (commandSender != Bukkit.getConsoleSender() || silent))
-			commandSender.sendMessage("§7[hChat] " + message);
+			commandSender.sendMessage("§8[§79Chat§8] §f" + message);
 	}
 
 	public void setFolder(File folder) {

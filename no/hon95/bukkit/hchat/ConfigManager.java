@@ -1,10 +1,10 @@
 package no.hon95.bukkit.hchat;
 
-import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigBoolean;
-import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigList;
-import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigMap;
-import static no.hon95.bukkit.hchat.util.ConfigUtil.getConfigString;
-import static no.hon95.bukkit.hchat.util.ConfigUtil.saveYamlConf;
+import static no.hon95.bukkit.hchat.util.ConfigTool.getConfigBoolean;
+import static no.hon95.bukkit.hchat.util.ConfigTool.getConfigList;
+import static no.hon95.bukkit.hchat.util.ConfigTool.getConfigMap;
+import static no.hon95.bukkit.hchat.util.ConfigTool.getConfigString;
+import static no.hon95.bukkit.hchat.util.ConfigTool.saveYamlConf;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import no.hon95.bukkit.hchat.util.BooleanObject;
@@ -41,7 +42,9 @@ public final class ConfigManager {
 	private final HChatPlugin gPlugin;
 	private BooleanObject gGroupsChange = new BooleanObject(false);
 	private BooleanObject gChannelsChange = new BooleanObject(false);
+	private YamlConfiguration gGroupsYaml = null;
 	private YamlConfiguration gChannelsYaml = null;
+	private final Object gGroupsSaveLock = new Object();
 	private final Object gChannelsSaveLock = new Object();
 
 	public ConfigManager(HChatPlugin plugin) {
@@ -91,28 +94,31 @@ public final class ConfigManager {
 
 	private void loadGroups() {
 		File file = new File(gPlugin.getDataFolder(), FILENAME_GROUPS);
-		YamlConfiguration conf = YamlConfiguration.loadConfiguration(file);
-		conf.options().copyHeader(true);
-		conf.options().header(HEADER_GROUPS);
+		gGroupsYaml = YamlConfiguration.loadConfiguration(file);
+		gGroupsYaml.options().copyHeader(true);
+		gGroupsYaml.options().header(HEADER_GROUPS);
 
 		gGroupsChange.val = false;
 		if (!file.isFile())
 			gGroupsChange.val = true;
 
 		HashSet<Group> groups = new HashSet<Group>();
-		Group defGroup = loadDefaultGroup(conf);
+		Group defGroup = loadDefaultGroup(gGroupsYaml);
 		groups.add(defGroup);
-		for (String group : conf.getKeys(false)) {
+		for (String group : gGroupsYaml.getKeys(false)) {
 			if (group.equalsIgnoreCase(DEFAULT_GROUP))
 				continue;
 			group = group.toLowerCase();
-			Group hgroup = loadGroup(conf, group, defGroup);
+			Group hgroup = loadGroup(gGroupsYaml, group, defGroup);
 			groups.add(hgroup);
 		}
 		gPlugin.getChatManager().setGroups(groups);
 
-		if (gGroupsChange.val)
-			saveYamlConf(conf, file);
+		if (gGroupsChange.val) {
+			synchronized (gGroupsSaveLock) {
+				saveYamlConf(gGroupsYaml, file);
+			}
+		}
 		gGroupsChange.val = false;
 	}
 
@@ -165,7 +171,7 @@ public final class ConfigManager {
 		hgroup.setTellSenderFormat(getConfigString(conf, group, "format.tell_sender", defGroup.getTellSenderFormat(), gGroupsChange, false));
 		hgroup.setTellReceiverFormat(getConfigString(conf, group, "format.tell_receiver", defGroup.getTellReceiverFormat(), gGroupsChange, false));
 		hgroup.setTellSpyFormat(getConfigString(conf, group, "format.tell_spy", defGroup.getTellSpyFormat(), gGroupsChange, false));
-		hgroup.setMotdFormat(getConfigList(conf, group, "format.motd", defGroup.getMotdFormat(), gGroupsChange, false));
+		hgroup.setMotdFormat(getConfigList(conf, group, "format.motd", new ArrayList<String>(defGroup.getMotdFormat()), gGroupsChange, false));
 		hgroup.setCensor(getConfigBoolean(conf, group, "censor", defGroup.isCensored(), gGroupsChange, false));
 		hgroup.setColorCodes(getConfigBoolean(conf, group, "color_codes", defGroup.allowColorCodes(), gGroupsChange, false));
 		hgroup.setCanChat(getConfigBoolean(conf, group, "can_chat", defGroup.canChat(), gGroupsChange, false));
@@ -173,6 +179,48 @@ public final class ConfigManager {
 		hgroup.setDefaultChannel(getConfigString(conf, group, "channel_default", defGroup.getDefaultChannel(), gChannelsChange, false));
 		hgroup.setDefaultWorldChannels(getConfigMap(conf, group, "channel_world_default", defGroup.getDefaultWorldChannels(), gGroupsChange, false));
 		return hgroup;
+	}
+
+	public void updateGroup(Group group) {
+		if (group == null)
+			throw new IllegalArgumentException();
+		String id = group.getId();
+		gGroupsYaml.set(id, null);
+		gGroupsYaml.set(id + ".name", group.getName());
+		gGroupsYaml.set(id + ".prefix", group.getPrefix());
+		gGroupsYaml.set(id + ".suffix", group.getSuffix());
+		gGroupsYaml.set(id + ".format.name", group.getNameFormat());
+		gGroupsYaml.set(id + ".format.list", group.getListFormat());
+		gGroupsYaml.set(id + ".format.chat", group.getChatFormat());
+		gGroupsYaml.set(id + ".format.death", group.getDeathFormat());
+		gGroupsYaml.set(id + ".format.join", group.getJoinFormat());
+		gGroupsYaml.set(id + ".format.quit", group.getQuitFormat());
+		gGroupsYaml.set(id + ".format.channel_join", group.getChannelJoinFormat());
+		gGroupsYaml.set(id + ".format.channel_quit", group.getChannelQuitFormat());
+		gGroupsYaml.set(id + ".format.me", group.getMeFormat());
+		gGroupsYaml.set(id + ".format.tell_sender", group.getTellSenderFormat());
+		gGroupsYaml.set(id + ".format.tell_receiver", group.getTellReceiverFormat());
+		gGroupsYaml.set(id + ".format.tell_spy", group.getTellSpyFormat());
+		gGroupsYaml.set(id + ".format.motd", group.getMotdFormat());
+		gGroupsYaml.set(id + ".censor", group.isCensored());
+		gGroupsYaml.set(id + ".color_codes", group.allowColorCodes());
+		gGroupsYaml.set(id + ".can_chat", group.canChat());
+		gGroupsYaml.set(id + ".show_personal_messages", group.showPersonalMessages());
+		gGroupsYaml.set(id + ".channel_default", group.getDefaultChannel());
+		for (Entry<String, String> e : group.getDefaultWorldChannels().entrySet()) {
+			gGroupsYaml.set(id + ".channel_world_default." + e.getKey(), e.getValue());
+		}
+	}
+
+	public void saveGroups() {
+		final File file = new File(gPlugin.getDataFolder(), FILENAME_GROUPS);
+		new Thread(new Runnable() {
+			public void run() {
+				synchronized (gGroupsSaveLock) {
+					saveYamlConf(gGroupsYaml, file);
+				}
+			}
+		}).start();
 	}
 
 	//// CHANNELS ////
@@ -199,8 +247,11 @@ public final class ConfigManager {
 		}
 		gPlugin.getChatManager().setChannels(channels);
 
-		if (gChannelsChange.val)
-			saveYamlConf(gChannelsYaml, file);
+		if (gChannelsChange.val) {
+			synchronized (gChannelsSaveLock) {
+				saveYamlConf(gChannelsYaml, file);
+			}
+		}
 		gChannelsChange.val = false;
 	}
 
@@ -221,7 +272,7 @@ public final class ConfigManager {
 		return new Channel(id, name, owner, password, chatFormat, isPrivate, isCensored, allowColorCodes, isUniversal, monitorChannels, members, bannedMembers);
 	}
 
-	public void addChannel(Channel channel) {
+	public void updateChannel(Channel channel) {
 		if (channel == null)
 			throw new IllegalArgumentException();
 		String id = channel.getId();

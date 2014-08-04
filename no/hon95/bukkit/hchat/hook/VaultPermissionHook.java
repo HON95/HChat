@@ -23,7 +23,7 @@ public final class VaultPermissionHook implements Hook {
 		try {
 			Class.forName(CLASS);
 			gPermissionPlugin = Bukkit.getServicesManager().getRegistration(Permission.class).getProvider();
-			gPlugin.getLogger().info("Hooked Vault permission plugin.");
+			gPlugin.getLogger().info("Hooked Vault permission plugin: " + gPermissionPlugin.getName());
 			return true;
 		} catch (Exception ex) {
 			return false;

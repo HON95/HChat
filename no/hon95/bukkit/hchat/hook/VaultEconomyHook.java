@@ -23,7 +23,7 @@ public final class VaultEconomyHook implements Hook {
 		try {
 			Class.forName(CLASS);
 			gEconomyPlugin = Bukkit.getServicesManager().getRegistration(Economy.class).getProvider();
-			gPlugin.getLogger().info("Hooked Vault economy plugin.");
+			gPlugin.getLogger().info("Hooked Vault economy plugin: " + gEconomyPlugin.getName());
 			return true;
 		} catch (Exception ex) {
 			return false;

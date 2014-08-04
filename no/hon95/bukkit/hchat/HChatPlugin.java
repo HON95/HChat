@@ -16,11 +16,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import no.hon95.bukkit.hchat.command.ChannelCommandExecutor;
+import no.hon95.bukkit.hchat.command.ClearChatCommandExecutor;
+import no.hon95.bukkit.hchat.command.ColorsCommandExecutor;
+import no.hon95.bukkit.hchat.command.HChatCommandExecutor;
+import no.hon95.bukkit.hchat.command.MeCommandExecutor;
+import no.hon95.bukkit.hchat.command.MuteAllCommandExecutor;
+import no.hon95.bukkit.hchat.command.MuteCommandExecutor;
+import no.hon95.bukkit.hchat.command.TellCommandExecutor;
+import no.hon95.bukkit.hchat.command.UnmuteAllCommandExecutor;
+import no.hon95.bukkit.hchat.command.UnmuteCommandExecutor;
 import no.hon95.bukkit.hchat.format.FormatManager;
 import no.hon95.bukkit.hchat.hook.RacesAndClassesHook;
 import no.hon95.bukkit.hchat.hook.VaultEconomyHook;
 import no.hon95.bukkit.hchat.hook.VaultPermissionHook;
 import no.hon95.bukkit.hchat.util.evilmidget38.NameFetcher;
+import no.hon95.bukkit.hchat.util.evilmidget38.UUIDFetcher;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,7 +46,6 @@ public final class HChatPlugin extends JavaPlugin {
 
 	private final ConfigManager gConfigManager = new ConfigManager(this);
 	private final PlayerListener gPlayerListener = new PlayerListener(this);
-	private final HCommandExecutor gCommandExecutor = new HCommandExecutor(this);
 	private final ChatManager gChatManager = new ChatManager(this);
 	private final FormatManager gFormatManager = new FormatManager(this);
 	private final MetricsManager gMetricsManager = new MetricsManager(this);
@@ -43,7 +53,7 @@ public final class HChatPlugin extends JavaPlugin {
 	private final VaultEconomyHook gVaultEconHook = new VaultEconomyHook(this);
 	private final RacesAndClassesHook gRACHook = new RacesAndClassesHook(this);
 	private final UpdateManager gUpdateManager = new UpdateManager(this, SERVER_MODS_API_ID);
-	private final HChatAPI gApi = new HChatAPI(this);
+	private final HChatApi gApi = new HChatApi(this);
 
 	private boolean gEnable = true;
 	private boolean gCheckForUpdates = true;
@@ -60,7 +70,6 @@ public final class HChatPlugin extends JavaPlugin {
 	public void onEnable() {
 		if (gEnable) {
 			registerListenersAndCommands();
-			loadUuids();
 			loadHooks();
 			gChatManager.load();
 			gMetricsManager.start();
@@ -79,28 +88,22 @@ public final class HChatPlugin extends JavaPlugin {
 
 	private void registerListenersAndCommands() {
 		getServer().getPluginManager().registerEvents(gPlayerListener, this);
-		getCommand(CMD_HCHAT).setExecutor(gCommandExecutor);
-		getCommand(CMD_CHANNEL).setExecutor(gCommandExecutor);
-		getCommand(CMD_CLEAR_CHAT).setExecutor(gCommandExecutor);
-		getCommand(CMD_COLORS).setExecutor(gCommandExecutor);
-		getCommand(CMD_ME).setExecutor(gCommandExecutor);
-		getCommand(CMD_MUTE).setExecutor(gCommandExecutor);
-		getCommand(CMD_UNMUTE).setExecutor(gCommandExecutor);
-		getCommand(CMD_MUTEALL).setExecutor(gCommandExecutor);
-		getCommand(CMD_UNMUTEALL).setExecutor(gCommandExecutor);
-		getCommand(CMD_TELL).setExecutor(gCommandExecutor);
+		getCommand(CMD_HCHAT).setExecutor(new HChatCommandExecutor(this));
+		getCommand(CMD_CHANNEL).setExecutor(new ChannelCommandExecutor(this));
+		getCommand(CMD_CLEAR_CHAT).setExecutor(new ClearChatCommandExecutor(this));
+		getCommand(CMD_COLORS).setExecutor(new ColorsCommandExecutor(this));
+		getCommand(CMD_ME).setExecutor(new MeCommandExecutor(this));
+		getCommand(CMD_MUTE).setExecutor(new MuteCommandExecutor(this));
+		getCommand(CMD_UNMUTE).setExecutor(new UnmuteCommandExecutor(this));
+		getCommand(CMD_MUTEALL).setExecutor(new MuteAllCommandExecutor(this));
+		getCommand(CMD_UNMUTEALL).setExecutor(new UnmuteAllCommandExecutor(this));
+		getCommand(CMD_TELL).setExecutor(new TellCommandExecutor(this));
 	}
 
 	private void loadHooks() {
 		gVaultPermHook.hook();
 		gVaultEconHook.hook();
 		gRACHook.hook();
-	}
-
-	private void loadUuids() {
-		ArrayList<UUID> uuids = new ArrayList<UUID>();
-		for (Player p : getServer().getOnlinePlayers())
-			uuids.add(p.getUniqueId());
 	}
 
 	private void setupTasks() {
@@ -126,12 +129,30 @@ public final class HChatPlugin extends JavaPlugin {
 		}
 	}
 
-	public UUID getPlayerUuid(String name) {
+	public UUID getPlayerUuid(String name, boolean downloadIfNecessary) {
+		UUID uuid = null;
 		for (Player p : getServer().getOnlinePlayers()) {
-			if (p.getName().equalsIgnoreCase(name))
-				return p.getUniqueId();
+			if (p.getName().equalsIgnoreCase(name)) {
+				uuid = p.getUniqueId();
+				break;
+			}
 		}
-		return null;
+		if (uuid == null && downloadIfNecessary) {
+			ArrayList<String> list = new ArrayList<String>();
+			list.add(name);
+			try {
+				Map<String, UUID> uuids = new UUIDFetcher(list).call();
+				for (Entry<String, UUID> e : uuids.entrySet()) {
+					if (e.getKey().equalsIgnoreCase(name)) {
+						uuid = e.getValue();
+						break;
+					}
+				}
+			} catch (Exception ex) {
+				getLogger().warning("Failed to download a uuid because of: " + ex.getLocalizedMessage());
+			}
+		}
+		return uuid;
 	}
 
 	public String getPlayerName(UUID uuid, boolean downloadIfNecessary) {
@@ -181,7 +202,7 @@ public final class HChatPlugin extends JavaPlugin {
 		return gUpdateManager;
 	}
 
-	public HChatAPI getApi() {
+	public HChatApi getApi() {
 		return gApi;
 	}
 

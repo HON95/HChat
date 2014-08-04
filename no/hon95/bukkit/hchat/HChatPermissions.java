@@ -15,6 +15,17 @@ public final class HChatPermissions {
 	public static final String PERM_COMMAND_CHANNEL_CREATE = "hchat.command.channel.create";
 	public static final String PERM_COMMAND_CHANNEL_DELETE = "hchat.command.channel.delete";
 	public static final String PERM_COMMAND_CHANNEL_EDIT = "hchat.command.channel.edit";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_NAME = "hchat.command.channel.edit.name";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_OWNER = "hchat.command.channel.edit.owner";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_PASSWORD = "hchat.command.channel.edit.password";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_CHAT_FORMAT = "hchat.command.channel.edit.chatformat";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_PRIVATE = "hchat.command.channel.edit.private";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_CENSORED = "hchat.command.channel.edit.censored";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_COLOR_CODES = "hchat.command.channel.edit.colorcodes";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_UNIVERSAL = "hchat.command.channel.edit.universal";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_MONITOR_CHANNELS = "hchat.command.channel.edit.monitorchannels";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_MEMBERS = "hchat.command.channel.edit.members";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_BANNED_MEMBERS = "hchat.command.channel.edit.bannedmembers";
 	public static final String PERM_COMMAND_CLEAR = "hchat.command.clearchat";
 	public static final String PERM_COMMAND_COLORS = "hchat.command.colors";
 	public static final String PERM_COMMAND_ME = "hchat.command.me";
@@ -30,6 +41,7 @@ public final class HChatPermissions {
 	public static final String PERM_MUTE_LIST = "hchat.mute.list";
 	public static final String PERM_CHANNEL_PREFIX = "hchat.channel.";
 	public static final String PERM_CHANNEL_ALL = "hchat.channel.*";
+	public static final String PERM_CHANNEL_MODIFYALL = "hchat.modifyallchannels";
 	public static final String PERM_NOTIFY_UPDATE = "hchat.notify.update";
 
 	private HChatPermissions() {}

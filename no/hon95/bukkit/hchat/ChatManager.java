@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import no.hon95.bukkit.hchat.format.Formatter.MessageType;
+import no.hon95.bukkit.hchat.util.ChannelAccessTool;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -190,7 +191,9 @@ public final class ChatManager {
 	}
 
 	public Channel getChannelExact(String name) {
-		return gChannels.get(name);
+		if (name != null)
+			return gChannels.get(name.toLowerCase());
+		return null;
 	}
 
 	public String getPlayerChannel(UUID id) {
@@ -207,16 +210,11 @@ public final class ChatManager {
 
 	public void changePlayerChannel(UUID player, String channel, boolean announce) {
 		boolean join = channel != null;
-		if (announce) {
-			if (join) {
-				if (gFormatChannelJoin)
-					Bukkit.broadcastMessage(gPlugin.getFormatManager().formatString(MessageType.CHANNEL_JOIN, Bukkit.getPlayer(player), null, null));
-			} else {
-				if (gFormatChannelQuit)
-					Bukkit.broadcastMessage(gPlugin.getFormatManager().formatString(MessageType.CHANNEL_QUIT, Bukkit.getPlayer(player), null, null));
-			}
-		}
+		if (announce && !join && gFormatChannelQuit)
+			Bukkit.broadcastMessage(gPlugin.getFormatManager().formatString(MessageType.CHANNEL_QUIT, Bukkit.getPlayer(player), null, null));
 		gPlayerChannels.put(player, getChannel(channel).getId());
+		if (announce && join && gFormatChannelJoin)
+			Bukkit.broadcastMessage(gPlugin.getFormatManager().formatString(MessageType.CHANNEL_JOIN, Bukkit.getPlayer(player), null, null));
 	}
 
 	public void addChannel(Channel channel) {
@@ -224,7 +222,7 @@ public final class ChatManager {
 			throw new IllegalArgumentException("Channel ID can not be null.");
 		channel.setId(channel.getId().toLowerCase());
 		gChannels.put(channel.getId(), channel);
-		gPlugin.getConfigManager().addChannel(channel);
+		gPlugin.getConfigManager().updateChannel(channel);
 		gPlugin.getConfigManager().saveChannels();
 	}
 
@@ -294,8 +292,38 @@ public final class ChatManager {
 	public void updatePlayerNames(Player player) {
 		if (gFormatName)
 			player.setDisplayName(gPlugin.getFormatManager().formatString(MessageType.NAME, player, null, null));
-		if (gFormatList)
-			player.setPlayerListName(gPlugin.getFormatManager().formatString(MessageType.LIST, player, null, null));
+		if (gFormatList) {
+			String listName = gPlugin.getFormatManager().formatString(MessageType.LIST, player, null, null);
+			if (listName.length() > 16)
+				listName = listName.substring(0, 15) + ".";
+			player.setPlayerListName(listName);
+		}
+	}
+
+	//// UPDATE AND SAVE ////
+
+	public void updateAndSaveGroup(String groupId) {
+		updateAndSaveGroup(getGroupExact(groupId));
+	}
+
+	public void updateAndSaveGroup(Group group) {
+		if (group == null)
+			throw new IllegalArgumentException();
+		gGroups.put(group.getId(), group);
+		gPlugin.getConfigManager().updateGroup(group);
+		gPlugin.getConfigManager().saveGroups();
+	}
+
+	public void updateAndSaveChannel(String channelId) {
+		updateAndSaveChannel(getChannelExact(channelId));
+	}
+
+	public void updateAndSaveChannel(Channel channel) {
+		if (channel == null)
+			throw new IllegalArgumentException();
+		gChannels.put(channel.getId(), channel);
+		gPlugin.getConfigManager().updateChannel(channel);
+		gPlugin.getConfigManager().saveChannels();
 	}
 
 	//// MISC ////
@@ -354,13 +382,22 @@ public final class ChatManager {
 					if (recipient != null)
 						newRecipients.add(recipient);
 				}
-				for (Channel c : gChannels.values()) {
-					if (!c.getId().equalsIgnoreCase(channel.getId())) {
-						if (c.getMonitorChannels() != null && c.getMonitorChannels().contains(channel.getId())) {
-							for (UUID pid : getChannelPlayers(c.getId())) {
-								Player recipient = Bukkit.getPlayer(pid);
-								if (recipient != null)
-									newRecipients.add(recipient);
+
+				if (!ChannelAccessTool.isPassworded(channel)) {
+					for (Channel c : gChannels.values()) {
+						if (c != channel) {
+							if (c.getMonitorChannels() != null) {
+								for (String mc : c.getMonitorChannels()) {
+									if (mc.equalsIgnoreCase(channel.getId())) {
+										for (UUID pid : getChannelPlayers(c.getId())) {
+											Player recipient = Bukkit.getPlayer(pid);
+											if (recipient != null) {
+												if (ChannelAccessTool.hasBasicAccess(channel, recipient))
+													newRecipients.add(recipient);
+											}
+										}
+									}
+								}
 							}
 						}
 					}

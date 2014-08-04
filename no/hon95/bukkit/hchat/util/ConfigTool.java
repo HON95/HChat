@@ -12,9 +12,11 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 
-public final class ConfigUtil {
+public final class ConfigTool {
 
 	public static final String KEY_FORMAT = "%s.%s";
+
+	private ConfigTool() {}
 
 	public static String getConfigString(Configuration conf, String section, String key, String def, BooleanObject change, boolean set) {
 		String path = section != null ? String.format(KEY_FORMAT, section, key) : key;
@@ -92,6 +94,4 @@ public final class ConfigUtil {
 			return false;
 		}
 	}
-
-	private ConfigUtil() {}
 }

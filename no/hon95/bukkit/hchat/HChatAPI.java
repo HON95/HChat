@@ -5,16 +5,27 @@ import java.util.Map;
 import org.bukkit.OfflinePlayer;
 
 
-public final class HChatAPI {
-	
+public final class HChatApi {
+
 	/* WARNING: DO NOT USE THIS API ON VERSIONS BELOW 1.5 */
 
-	public static final String LAST_VERSION_UPDATED = "1.5";
-	
+	private static final int VERSION = 1;
+
+	private static HChatApi gInstance = null;
+
 	private final HChatPlugin gPlugin;
 
-	HChatAPI(HChatPlugin plugin) {
+	HChatApi(HChatPlugin plugin) {
 		gPlugin = plugin;
+		gInstance = this;
+	}
+
+	public String getVersion() {
+		return gPlugin.getDescription().getVersion();
+	}
+
+	public int getApiVersion() {
+		return VERSION;
 	}
 
 	public boolean isEnabled() {
@@ -39,6 +50,7 @@ public final class HChatAPI {
 		Group hgroup = gPlugin.getChatManager().getGroupExact(group);
 		if (hgroup != null) {
 			hgroup.setPrefix(prefix);
+			gPlugin.getChatManager().updateAndSaveGroup(group);
 			return true;
 		}
 		return false;
@@ -48,6 +60,7 @@ public final class HChatAPI {
 		Group hgroup = gPlugin.getChatManager().getGroupExact(group);
 		if (hgroup != null) {
 			hgroup.setSuffix(suffix);
+			gPlugin.getChatManager().updateAndSaveGroup(group);
 			return true;
 		}
 		return false;
@@ -83,5 +96,9 @@ public final class HChatAPI {
 
 	public Map<String, Channel> getChannels() {
 		return gPlugin.getChatManager().getChannels();
+	}
+
+	public static HChatApi getInstance() {
+		return gInstance;
 	}
 }
