@@ -1,6 +1,17 @@
 %: percent sign
-a: [RacesAndClasses] race
-A: [RacesAndClasses] class
+$: dollar sign
+0: [RacesAndClasses] race
+1: [RacesAndClasses] class
+2:
+3:
+4:
+5:
+6:
+7:
+8:
+9:
+a: long away tag
+A: short away tag
 b:
 B:
 c: channel name
@@ -15,8 +26,8 @@ g: name of chat group
 G: name of real group
 h: health (percent) (WIP)
 H: health (bars) (WIP)
-i:
-I:
+i: group meta info (WIP)
+I: global meta info (WIP)
 j:
 J:
 k:

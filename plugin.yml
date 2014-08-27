@@ -1,12 +1,15 @@
 name: hChat
 main: no.hon95.bukkit.hchat.HChatPlugin
-version: 1.4.5
+version: 1.5.0
 author: HON95
 description: Chat formatter.
 softdepend: [Vault,RacesAndClasses]
 commands:
     hchat:
         description: Manage hChat.
+    away:
+        description: Flag the player as away.
+        aliases: [afk]
     channel:
         description: Chat channels.
         aliases: [ch]
@@ -32,7 +35,8 @@ permissions:
         description: All hChat permissions.
         default: op
         children:
-            hchat.command: true
+            hchat.command.hchat: true
+            hchat.command.channel: true
             hchat.command.channel: true
             hchat.command.clearchat: true
             hchat.command.colors: true
@@ -41,8 +45,6 @@ permissions:
             hchat.command.unmute: true
             hchat.command.tell: true
             hchat.command.channel.edit.*: true
-            hchat.reload: true
-            hchat.list: true
             hchat.unclearable: true
             hchat.spy: true
             hchat.immutable: true
@@ -61,6 +63,8 @@ permissions:
         description: List info from hChat.
     hchat.command.hchat.reload:
         description: Update hchat to newest version.
+    hchat.command.away:
+        description: For away command.
     hchat.command.channel:
         description: For all subcommands of command channel.
         children:
@@ -99,7 +103,10 @@ permissions:
             hchat.command.channel.edit.censored: true
             hchat.command.channel.edit.colorcodes: true
             hchat.command.channel.edit.universal: true
+            hchat.command.channel.edit.autojoinifdefault: true
+            hchat.command.channel.edit.range: true
             hchat.command.channel.edit.monitorchannels: true
+            hchat.command.channel.edit.membergroups: true
             hchat.command.channel.edit.members: true
             hchat.command.channel.edit.bannedmembers: true
     hchat.command.channel.edit.name:
@@ -118,8 +125,14 @@ permissions:
         description: Edit a channels color code allowance.
     hchat.command.channel.edit.universal:
         description: Edit a channels universal setting.
+    hchat.command.channel.edit.autojoinifdefault:
+        description: Edit a channels force auto join setting.
+    hchat.command.channel.edit.range:
+        description: Edit a channels range setting.
     hchat.command.channel.edit.monitorchannels:
         description: Edit a channels monitored channels.
+    hchat.command.channel.edit.membergroups:
+        description: Edit a channels member groups.
     hchat.command.channel.edit.members:
         description: Edit a channels members.
     hchat.command.channel.edit.bannedmembers:
