@@ -5,7 +5,6 @@ import java.util.List;
 
 import no.hon95.bukkit.hchat.common.util.StringList;
 
-
 public class Channel implements Cloneable {
 
 	private String gId;
@@ -14,6 +13,7 @@ public class Channel implements Cloneable {
 	private String gPassword;
 	private String gChatFormat;
 	private boolean gIsPrivate;
+	private boolean gIsHidden;
 	private boolean gIsCensored;
 	private boolean gAllowColorCodes;
 	private boolean gIsUniversal;
@@ -29,14 +29,17 @@ public class Channel implements Cloneable {
 	}
 
 	public Channel(String id, String owner, boolean isPrivate) {
-		this(id, id, owner, null, null, isPrivate, false, true, true, false, -1D);
+		this(id, id, owner, "", "", isPrivate, false, false, true, true, false, -1D);
 	}
 
-	public Channel(String id, String name, String owner, String password, String chatFormat, boolean isPrivate, boolean isCensored, boolean allowColorCodes, boolean isUniversal, boolean autoJoinIfDefault, double range) {
-		this(id, name, owner, password, chatFormat, isPrivate, isCensored, allowColorCodes, isUniversal, autoJoinIfDefault, range, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
+	public Channel(String id, String name, String owner, String password, String chatFormat, boolean isPrivate, boolean isHidden, boolean isCensored, boolean allowColorCodes, boolean isUniversal,
+			boolean autoJoinIfDefault, double range) {
+		this(id, name, owner, password, chatFormat, isPrivate, isHidden, isCensored, allowColorCodes, isUniversal, autoJoinIfDefault, range, new ArrayList<String>(), new ArrayList<String>(),
+				new ArrayList<String>(), new ArrayList<String>());
 	}
 
-	public Channel(String id, String name, String owner, String password, String chatFormat, boolean isPrivate, boolean isCensored, boolean allowColorCodes, boolean isUniversal, boolean autoJoinIfDefault, double range,
+	public Channel(String id, String name, String owner, String password, String chatFormat, boolean isPrivate, boolean isHidden, boolean isCensored, boolean allowColorCodes, boolean isUniversal,
+			boolean autoJoinIfDefault, double range,
 			List<String> monitorChannels, List<String> memberGroups, List<String> members, List<String> bannedMembers) {
 		gId = id;
 		gName = name;
@@ -44,6 +47,7 @@ public class Channel implements Cloneable {
 		gPassword = password;
 		gChatFormat = chatFormat;
 		gIsPrivate = isPrivate;
+		gIsHidden = isHidden;
 		gIsCensored = isCensored;
 		gAllowColorCodes = allowColorCodes;
 		gIsUniversal = isUniversal;
@@ -57,7 +61,7 @@ public class Channel implements Cloneable {
 
 	@Override
 	public Channel clone() {
-		return new Channel(gId, gName, gOwner, gPassword, gChatFormat, gIsPrivate, gIsCensored, gAllowColorCodes, gIsUniversal, gAutoJoinIfDefault, gRange,
+		return new Channel(gId, gName, gOwner, gPassword, gChatFormat, gIsPrivate, gIsHidden, gIsCensored, gAllowColorCodes, gIsUniversal, gAutoJoinIfDefault, gRange,
 				new ArrayList<String>(gMonitorChannels), new ArrayList<String>(gMemberGroups), new ArrayList<String>(gMembers), new ArrayList<String>(gBannedMembers));
 	}
 
@@ -83,6 +87,10 @@ public class Channel implements Cloneable {
 
 	public boolean isPrivate() {
 		return gIsPrivate;
+	}
+
+	public boolean isHidden() {
+		return gIsHidden;
 	}
 
 	public boolean isCensored() {
@@ -143,6 +151,10 @@ public class Channel implements Cloneable {
 
 	public void setPrivate(boolean isPrivate) {
 		gIsPrivate = isPrivate;
+	}
+
+	public void setHidden(boolean isHidden) {
+		gIsHidden = isHidden;
 	}
 
 	public void setCensored(boolean isCensored) {

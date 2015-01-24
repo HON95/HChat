@@ -3,8 +3,7 @@ package no.hon95.bukkit.hchat;
 import java.util.List;
 import java.util.Map;
 
-import no.hon95.bukkit.hchat.common.util.StringKeyMap;
-
+import no.hon95.bukkit.hchat.common.util.StringKeyHashMap;
 
 public class Group {
 
@@ -38,7 +37,7 @@ public class Group {
 	private String gAwayShortTag = null;
 	private boolean gKickOnAway = false;
 	private String gDefaultChannel = null;
-	private StringKeyMap<String> gDefautlWorldChannels = null;
+	private StringKeyHashMap<String> gDefautlWorldChannels = null;
 
 	public String getId() {
 		return gId;
@@ -160,7 +159,7 @@ public class Group {
 		return gDefaultChannel;
 	}
 
-	public StringKeyMap<String> getDefaultWorldChannels() {
+	public StringKeyHashMap<String> getDefaultWorldChannels() {
 		return gDefautlWorldChannels;
 	}
 
@@ -285,6 +284,6 @@ public class Group {
 	}
 
 	public void setDefaultWorldChannels(Map<String, String> defaultWorldChannels) {
-		gDefautlWorldChannels = new StringKeyMap<String>(defaultWorldChannels);
+		gDefautlWorldChannels = new StringKeyHashMap<String>(defaultWorldChannels);
 	}
 }

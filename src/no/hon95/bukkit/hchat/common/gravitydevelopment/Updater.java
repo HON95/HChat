@@ -1,6 +1,6 @@
 /*
  * Updater for Bukkit.
- *
+ * 
  * This class provides the means to safely and easily update a plugin, or check to see if it is updated using dev.bukkit.org
  */
 
@@ -27,24 +27,18 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-
 /**
  * Check dev.bukkit.org to find updates for a given plugin, and download the
  * updates if needed.
  * <p/>
- * <b>VERY, VERY IMPORTANT</b>: Because there are no standards for adding
- * auto-update toggles in your plugin's config, this system provides NO CHECK
- * WITH YOUR CONFIG to make sure the user has allowed auto-updating. <br>
- * It is a <b>BUKKIT POLICY</b> that you include a boolean value in your config
- * that prevents the auto-updater from running <b>AT ALL</b>. <br>
- * If you fail to include this option in your config, your plugin will be
- * <b>REJECTED</b> when you attempt to submit it to dev.bukkit.org.
+ * <b>VERY, VERY IMPORTANT</b>: Because there are no standards for adding auto-update toggles in your plugin's config, this system provides NO CHECK WITH YOUR
+ * CONFIG to make sure the user has allowed auto-updating. <br>
+ * It is a <b>BUKKIT POLICY</b> that you include a boolean value in your config that prevents the auto-updater from running <b>AT ALL</b>. <br>
+ * If you fail to include this option in your config, your plugin will be <b>REJECTED</b> when you attempt to submit it to dev.bukkit.org.
  * <p/>
- * An example of a good configuration option would be something similar to
- * 'auto-update: true' - if this value is set to false you may NOT run the
- * auto-updater. <br>
- * If you are unsure about these rules, please read the plugin submission
- * guidelines: http://goo.gl/8iU5l
+ * An example of a good configuration option would be something similar to 'auto-update: true' - if this value is set to false you may NOT run the auto-updater.
+ * <br>
+ * If you are unsure about these rules, please read the plugin submission guidelines: http://goo.gl/8iU5l
  * 
  * @author Gravity
  * @version 2.1
@@ -173,13 +167,17 @@ public class Updater {
 	/**
 	 * Initialize the updater.
 	 * 
-	 * @param plugin The plugin that is checking for an update.
-	 * @param id The dev.bukkit.org id of the project.
-	 * @param file The file that the plugin is running from, get this by doing
+	 * @param plugin
+	 *            The plugin that is checking for an update.
+	 * @param id
+	 *            The dev.bukkit.org id of the project.
+	 * @param file
+	 *            The file that the plugin is running from, get this by doing
 	 *            this.getFile() from within your main class.
-	 * @param type Specify the type of update this will be. See
-	 *            {@link UpdateType}
-	 * @param announce True if the program should announce the progress of new
+	 * @param type
+	 *            Specify the type of update this will be. See {@link UpdateType}
+	 * @param announce
+	 *            True if the program should announce the progress of new
 	 *            updates in console.
 	 */
 	public Updater(Plugin plugin, int id, File file, UpdateType type, boolean announce) {
@@ -322,9 +320,12 @@ public class Updater {
 	/**
 	 * Save an update from dev.bukkit.org into the server's update folder.
 	 * 
-	 * @param folder the updates folder location.
-	 * @param file the name of the file to save it as.
-	 * @param link the url of the file.
+	 * @param folder
+	 *            the updates folder location.
+	 * @param file
+	 *            the name of the file to save it as.
+	 * @param link
+	 *            the url of the file.
 	 */
 	private void saveFile(File folder, String file, String link) {
 		if (!folder.exists()) {
@@ -353,7 +354,7 @@ public class Updater {
 					this.plugin.getLogger().info("Downloading update: " + percent + "% of " + fileLength + " bytes.");
 				}
 			}
-			//Just a quick check to make sure we didn't leave any files from last time...
+			// Just a quick check to make sure we didn't leave any files from last time...
 			for (final File xFile : new File(this.plugin.getDataFolder().getParent(), this.updateFolder).listFiles()) {
 				if (xFile.getName().endsWith(".zip")) {
 					xFile.delete();
@@ -387,7 +388,8 @@ public class Updater {
 	/**
 	 * Part of Zip-File-Extractor, modified by Gravity for use with Updater.
 	 * 
-	 * @param file the location of the file to extract.
+	 * @param file
+	 *            the location of the file to extract.
 	 */
 	private void unzip(String file) {
 		try {
@@ -466,7 +468,8 @@ public class Updater {
 	 * Check if the name of a jar is one of the plugins currently installed,
 	 * used for extracting the correct files out of a zip.
 	 * 
-	 * @param name a name to check for inside the plugins folder.
+	 * @param name
+	 *            a name to check for inside the plugins folder.
 	 * @return true if a file inside the plugins folder is named this.
 	 */
 	private boolean pluginFile(String name) {
@@ -482,7 +485,8 @@ public class Updater {
 	 * Check to see if the program should continue by evaluating whether the
 	 * plugin is already updated, or shouldn't be updated.
 	 * 
-	 * @param title the plugin's title.
+	 * @param title
+	 *            the plugin's title.
 	 * @return true if the version was located and is not the same as the
 	 *         remote's newest.
 	 */
@@ -514,31 +518,24 @@ public class Updater {
 	 * <b>If you wish to run mathematical versioning checks, edit this
 	 * method.</b>
 	 * <p>
-	 * With default behavior, Updater will NOT verify that a remote version
-	 * available on BukkitDev which is not this version is indeed an "update".
-	 * If a version is present on BukkitDev that is not the version that is
-	 * currently running, Updater will assume that it is a newer version. This
-	 * is because there is no standard versioning scheme, and creating a
-	 * calculation that can determine whether a new update is actually an update
-	 * is sometimes extremely complicated.
+	 * With default behavior, Updater will NOT verify that a remote version available on BukkitDev which is not this version is indeed an "update". If a version
+	 * is present on BukkitDev that is not the version that is currently running, Updater will assume that it is a newer version. This is because there is no
+	 * standard versioning scheme, and creating a calculation that can determine whether a new update is actually an update is sometimes extremely complicated.
 	 * </p>
 	 * <p>
-	 * Updater will call this method from {@link #versionCheck(String)} before
-	 * deciding whether the remote version is actually an update. If you have a
-	 * specific versioning scheme with which a mathematical determination can be
-	 * reliably made to decide whether one version is higher than another, you
-	 * may revise this method, using the local and remote version parameters, to
-	 * execute the appropriate check.
+	 * Updater will call this method from {@link #versionCheck(String)} before deciding whether the remote version is actually an update. If you have a specific
+	 * versioning scheme with which a mathematical determination can be reliably made to decide whether one version is higher than another, you may revise this
+	 * method, using the local and remote version parameters, to execute the appropriate check.
 	 * </p>
 	 * <p>
-	 * Returning a value of <b>false</b> will tell the update process that this
-	 * is NOT a new version. Without revision, this method will always consider
-	 * a remote version at all different from that of the local version a new
-	 * update.
+	 * Returning a value of <b>false</b> will tell the update process that this is NOT a new version. Without revision, this method will always consider a
+	 * remote version at all different from that of the local version a new update.
 	 * </p>
 	 * 
-	 * @param localVersion the current version
-	 * @param remoteVersion the remote version
+	 * @param localVersion
+	 *            the current version
+	 * @param remoteVersion
+	 *            the remote version
 	 * @return true if Updater should consider the remote version an update,
 	 *         false if not.
 	 */
@@ -550,7 +547,8 @@ public class Updater {
 	 * Evaluate whether the version number is marked showing that it should not
 	 * be updated by this program.
 	 * 
-	 * @param version a version number to check for tags in.
+	 * @param version
+	 *            a version number to check for tags in.
 	 * @return true if updating should be disabled.
 	 */
 	private boolean hasTag(String version) {

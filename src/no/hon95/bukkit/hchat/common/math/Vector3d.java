@@ -45,12 +45,29 @@ public class Vector3d {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == this) {
+		if (obj == null) {
+			return false;
+		} else if (obj == this) {
 			return true;
 		} else if (obj instanceof Vector3d) {
 			Vector3d vector = (Vector3d) obj;
-			return (vector.getX() == getX() && vector.getY() == getY() && vector.getZ() == getZ());
+			return hashCode() == vector.hashCode();
 		}
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 37;
+		int result = 13;
+		result = prime * result + Double.valueOf(getX()).hashCode();
+		result = prime * result + Double.valueOf(getY()).hashCode();
+		result = prime * result + Double.valueOf(getZ()).hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("[%.3f,%.3f,%.3f]", getX(), getY(), getZ());
 	}
 }

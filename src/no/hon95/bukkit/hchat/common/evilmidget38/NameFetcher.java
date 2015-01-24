@@ -14,7 +14,6 @@ import org.json.simple.parser.JSONParser;
 
 import com.google.common.collect.ImmutableList;
 
-
 public class NameFetcher implements Callable<Map<UUID, String>> {
 	private static final String PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/";
 	private final JSONParser jsonParser = new JSONParser();

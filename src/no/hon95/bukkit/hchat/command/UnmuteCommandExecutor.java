@@ -4,13 +4,13 @@ import static no.hon95.bukkit.hchat.HChatPermissions.*;
 import static org.bukkit.ChatColor.*;
 import no.hon95.bukkit.hchat.HChatCommands;
 import no.hon95.bukkit.hchat.HChatPlugin;
+import no.hon95.bukkit.hchat.common.util.AbstractCommandExecutor;
 import no.hon95.bukkit.hchat.common.util.PlayerIdUtils;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-
-public final class UnmuteCommandExecutor extends AbstractCommandExecutor {
+public final class UnmuteCommandExecutor extends AbstractCommandExecutor<HChatPlugin> {
 
 	private static final String COMMAND = HChatCommands.CMD_UNMUTE;
 

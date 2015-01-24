@@ -6,7 +6,6 @@ import no.hon95.bukkit.hchat.HChatPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-
 public final class VaultPermissionHook implements Hook {
 
 	private static final String CLASS = "net.milkbowl.vault.permission.Permission";

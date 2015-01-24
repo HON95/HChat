@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import no.hon95.bukkit.hchat.common.util.PlayerIdUtils;
 
-
 public final class HChatApi {
 
 	private static final int VERSION = 1;

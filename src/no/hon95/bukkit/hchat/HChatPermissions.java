@@ -21,6 +21,7 @@ public final class HChatPermissions {
 	public static final String PERM_COMMAND_CHANNEL_EDIT_PASSWORD = "hchat.command.channel.edit.password";
 	public static final String PERM_COMMAND_CHANNEL_EDIT_CHAT_FORMAT = "hchat.command.channel.edit.chatformat";
 	public static final String PERM_COMMAND_CHANNEL_EDIT_PRIVATE = "hchat.command.channel.edit.private";
+	public static final String PERM_COMMAND_CHANNEL_EDIT_HIDDEN = "hchat.command.channel.edit.hidden";
 	public static final String PERM_COMMAND_CHANNEL_EDIT_CENSORED = "hchat.command.channel.edit.censored";
 	public static final String PERM_COMMAND_CHANNEL_EDIT_COLOR_CODES = "hchat.command.channel.edit.colorcodes";
 	public static final String PERM_COMMAND_CHANNEL_EDIT_UNIVERSAL = "hchat.command.channel.edit.universal";
@@ -45,7 +46,8 @@ public final class HChatPermissions {
 	public static final String PERM_MUTE_LIST = "hchat.mute.list";
 	public static final String PERM_CHANNEL_PREFIX = "hchat.channel.";
 	public static final String PERM_CHANNEL_ALL = "hchat.channel.*";
-	public static final String PERM_CHANNEL_MODIFYALL = "hchat.modifyallchannels";
+	public static final String PERM_CHANNEL_MODIFY_ALL = "hchat.modifyallchannels";
+	public static final String PERM_CHANNEL_SEE_ALL = "hchat.mseeallchannels";
 	public static final String PERM_NOTIFY_UPDATE = "hchat.notify.update";
 
 	private HChatPermissions() {}

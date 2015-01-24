@@ -1,21 +1,20 @@
-package no.hon95.bukkit.hchat.command;
+package no.hon95.bukkit.hchat.common.util;
 
 import static org.bukkit.ChatColor.*;
-import no.hon95.bukkit.hchat.HChatPlugin;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
+public abstract class AbstractCommandExecutor<P extends JavaPlugin> implements CommandExecutor {
 
-public abstract class AbstractCommandExecutor implements CommandExecutor {
-
-	private final HChatPlugin gPlugin;
+	private final P gPlugin;
 	private final String gCommand;
 
-	public AbstractCommandExecutor(HChatPlugin plugin, String command) {
+	public AbstractCommandExecutor(P plugin, String command) {
 		gPlugin = plugin;
 		gCommand = command;
 	}
@@ -29,7 +28,7 @@ public abstract class AbstractCommandExecutor implements CommandExecutor {
 		return false;
 	}
 
-	protected final HChatPlugin getPlugin() {
+	protected final P getPlugin() {
 		return gPlugin;
 	}
 
@@ -49,13 +48,13 @@ public abstract class AbstractCommandExecutor implements CommandExecutor {
 			return false;
 		}
 	}
-	
+
 	protected static final String[] translateColorCodes(String[] array) {
 		for (int i = 0; i < array.length; i++)
 			array[i] = translateColorCodes(array[i]);
 		return array;
 	}
-	
+
 	protected static final String translateColorCodes(String string) {
 		return ChatColor.translateAlternateColorCodes('&', string);
 	}

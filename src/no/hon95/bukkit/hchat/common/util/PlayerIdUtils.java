@@ -11,7 +11,6 @@ import no.hon95.bukkit.hchat.common.evilmidget38.UUIDFetcher;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-
 public class PlayerIdUtils {
 
 	private static final boolean BUKKIT_UUID_SUPPORT;
@@ -47,7 +46,7 @@ public class PlayerIdUtils {
 					}
 				}
 			} catch (Exception ex) {
-				Bukkit.getLogger().warning("Failed to download an UUID.");
+				Bukkit.getLogger().warning("Failed to download UUID for local player name '" + name + "'.");
 				ex.printStackTrace();
 			}
 		}
@@ -73,7 +72,7 @@ public class PlayerIdUtils {
 					}
 				}
 			} catch (Exception ex) {
-				Bukkit.getLogger().warning("Failed to download a player name.");
+				Bukkit.getLogger().warning("Failed to download name for player UUID '" + uuid + "'.");
 				ex.printStackTrace();
 			}
 		}

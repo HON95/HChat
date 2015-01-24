@@ -2,17 +2,17 @@ package no.hon95.bukkit.hchat.common.mcstats;
 
 /*
  * Copyright 2011-2013 Tyler Blair. All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- *
- *    1. Redistributions of source code must retain the above copyright notice, this list of
- *       conditions and the following disclaimer.
- *
- *    2. Redistributions in binary form must reproduce the above copyright notice, this list
- *       of conditions and the following disclaimer in the documentation and/or other materials
- *       provided with the distribution.
- *
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR
@@ -22,7 +22,7 @@ package no.hon95.bukkit.hchat.common.mcstats;
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * 
  * The views and conclusions contained in the software and documentation are those of the
  * authors and contributors and should not be interpreted as representing official policies,
  * either expressed or implied, of anybody else.
@@ -54,7 +54,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.scheduler.BukkitTask;
-
 
 public class Metrics {
 
@@ -150,7 +149,8 @@ public class Metrics {
 	 * plotters to their own graphs on the metrics
 	 * website. Plotters can be added to the graph object returned.
 	 * 
-	 * @param name The name of the graph
+	 * @param name
+	 *            The name of the graph
 	 * @return Graph object created. Will never return NULL under normal
 	 *         circumstances unless bad parameters are given
 	 */
@@ -173,7 +173,8 @@ public class Metrics {
 	 * Add a Graph object to BukkitMetrics that represents data for the plugin
 	 * that should be sent to the backend
 	 * 
-	 * @param graph The name of the graph
+	 * @param graph
+	 *            The name of the graph
 	 */
 	public void addGraph(final Graph graph) {
 		if (graph == null) {
@@ -617,7 +618,8 @@ public class Metrics {
 	/**
 	 * Encode text as UTF-8
 	 * 
-	 * @param text the text to encode
+	 * @param text
+	 *            the text to encode
 	 * @return the encoded text, as UTF-8
 	 */
 	private static String urlEncode(final String text) throws UnsupportedEncodingException {
@@ -657,7 +659,8 @@ public class Metrics {
 		/**
 		 * Add a plotter to the graph, which will be used to plot entries
 		 * 
-		 * @param plotter the plotter to add to the graph
+		 * @param plotter
+		 *            the plotter to add to the graph
 		 */
 		public void addPlotter(final Plotter plotter) {
 			plotters.add(plotter);
@@ -666,7 +669,8 @@ public class Metrics {
 		/**
 		 * Remove a plotter from the graph
 		 * 
-		 * @param plotter the plotter to remove from the graph
+		 * @param plotter
+		 *            the plotter to remove from the graph
 		 */
 		public void removePlotter(final Plotter plotter) {
 			plotters.remove(plotter);
@@ -723,7 +727,8 @@ public class Metrics {
 		/**
 		 * Construct a plotter with a specific plot name
 		 * 
-		 * @param name the name of the plotter to use, which will show up on the
+		 * @param name
+		 *            the name of the plotter to use, which will show up on the
 		 *            website
 		 */
 		public Plotter(final String name) {

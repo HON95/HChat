@@ -34,12 +34,28 @@ public class Vector2i {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == this) {
+		if (obj == null) {
+			return false;
+		} else if (obj == this) {
 			return true;
 		} else if (obj instanceof Vector2i) {
 			Vector2i vector = (Vector2i) obj;
-			return (vector.getX() == getX() && vector.getY() == getY());
+			return hashCode() == vector.hashCode();
 		}
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 37;
+		int result = 13;
+		result = prime * result + getX();
+		result = prime * result + getY();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("[%d,%d]", getX(), getY());
 	}
 }

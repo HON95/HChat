@@ -24,7 +24,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 
-
 public final class ChatManager {
 
 	public static final String DEFAULT_GROUP_NAME = "default";
@@ -367,7 +366,7 @@ public final class ChatManager {
 		}, 1L);
 	}
 
-	//// UPDATE AND SAVE ////
+	// UPDATE AND SAVE //
 
 	public void updateAndSaveGroup(String groupId) {
 		updateAndSaveGroup(getGroupExact(groupId));
@@ -393,7 +392,7 @@ public final class ChatManager {
 		gPlugin.getConfigManager().saveChannels();
 	}
 
-	//// MISC ////
+	// MISC //
 
 	public String calculatePlayerGroup(Player player) {
 		String chosenGroup = null;
@@ -420,7 +419,7 @@ public final class ChatManager {
 		return getChannel(channel);
 	}
 
-	//// EVENT PROCESSING ////
+	// EVENT PROCESSING //
 
 	public void onPlayerChat(AsyncPlayerChatEvent ev) {
 		if (!ev.isCancelled()) {
@@ -435,7 +434,7 @@ public final class ChatManager {
 				sender.sendMessage(RED + "You are globally muted.");
 			} else if (gMuteAll && !sender.hasPermission(PERM_IMMUTABLE)) {
 				ev.setCancelled(true);
-				sender.sendMessage(RED + "Everyone except a few are currently muted.");
+				sender.sendMessage(RED + "Most people are currently muted.");
 			} else {
 				Channel channel = getChannel(sender.getUniqueId());
 				String format = ev.getFormat();
@@ -523,7 +522,7 @@ public final class ChatManager {
 		setPlayerAway(false, player);
 	}
 
-	//// GETTERS AND SETTERS ////
+	// GETTERS AND SETTERS //
 
 	public void setFormatName(boolean format) {
 		gFormatName = format;

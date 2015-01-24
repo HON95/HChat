@@ -11,7 +11,6 @@ import no.hon95.bukkit.hchat.common.util.PlayerIdUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-
 public final class ChannelEditUtils {
 
 	public static void edit(HChatPlugin plugin, CommandSender sender, Channel channel, String strAction, String strKey, String value) throws EditException {
@@ -82,6 +81,10 @@ public final class ChannelEditUtils {
 		case PRIVATE:
 			if (action == Action.SET)
 				channel.setPrivate(toBoolean(value));
+			break;
+		case HIDDEN:
+			if (action == Action.SET)
+				channel.setHidden(toBoolean(value));
 			break;
 		case CENSORED:
 			if (action == Action.SET)
@@ -178,7 +181,7 @@ public final class ChannelEditUtils {
 	public static enum Key {
 		NAME(PERM_COMMAND_CHANNEL_EDIT_NAME, Action.SET), OWNER(PERM_COMMAND_CHANNEL_EDIT_OWNER, Action.SET),
 		PASSWORD(PERM_COMMAND_CHANNEL_EDIT_PASSWORD, Action.SET, Action.UNSET), CHAT_FORMAT(PERM_COMMAND_CHANNEL_EDIT_CHAT_FORMAT, Action.SET, Action.UNSET),
-		PRIVATE(PERM_COMMAND_CHANNEL_EDIT_PRIVATE, Action.SET), CENSORED(PERM_COMMAND_CHANNEL_EDIT_CENSORED, Action.SET),
+		PRIVATE(PERM_COMMAND_CHANNEL_EDIT_PRIVATE, Action.SET), HIDDEN(PERM_COMMAND_CHANNEL_EDIT_HIDDEN, Action.SET), CENSORED(PERM_COMMAND_CHANNEL_EDIT_CENSORED, Action.SET),
 		COLOR_CODES(PERM_COMMAND_CHANNEL_EDIT_COLOR_CODES, Action.SET), UNIVERSAL(PERM_COMMAND_CHANNEL_EDIT_UNIVERSAL, Action.SET),
 		AUTO_JOIN_IF_DEFAULT(PERM_COMMAND_CHANNEL_EDIT_AUTO_JOIN_IF_DEFAULT, Action.SET), RANGE(PERM_COMMAND_CHANNEL_EDIT_RANGE, Action.SET, Action.UNSET),
 		MONITOR_CHANNELS(PERM_COMMAND_CHANNEL_EDIT_MONITOR_CHANNELS, Action.ADD, Action.REMOVE), MEMBER_GROUPS(PERM_COMMAND_CHANNEL_EDIT_MEMBER_GROUPS, Action.ADD, Action.REMOVE),

@@ -1,26 +1,27 @@
 package no.hon95.bukkit.hchat.command;
 
+import static no.hon95.bukkit.hchat.Colors.*;
 import static no.hon95.bukkit.hchat.HChatPermissions.*;
-import static org.bukkit.ChatColor.*;
 import no.hon95.bukkit.hchat.ChatManager;
 import no.hon95.bukkit.hchat.HChatCommands;
 import no.hon95.bukkit.hchat.HChatPlugin;
+import no.hon95.bukkit.hchat.common.util.AbstractCommandExecutor;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-
-public class HChatCommandExecutor extends AbstractCommandExecutor {
+public class HChatCommandExecutor extends AbstractCommandExecutor<HChatPlugin> {
 
 	private static final String COMMAND = HChatCommands.CMD_HCHAT;
 	private static final String[] COMMAND_USAGE = translateColorCodes(new String[] { "",
-			"            &c>> &9hChat&c <<",
-			"&a================================================",
-			"&a * &7Chat formatter by HON95",
-			"&a * &7Commands:",
-			"&a * &6/hchat reload &7-> Reload files and update player info.",
-			"&a * &6/hchat list <groups|channels|players> &7-> List groups, channels or player info.",
+			C_FRAGMENT + "  >>  " + C_HEADER + "hChat  " + C_FRAGMENT + "<<",
+			C_SEPARATOR + "================================================",
+			C_BULLET + " * " + C_INFO + "Chat formatter by HON95",
+			C_BULLET + " * ",
+			C_BULLET + " * " + C_FORMAT + "/hchat list <groups|channels|players> " + C_FORMAT_DESC + "-> List groups, channels or player info.",
+			C_BULLET + " * " + C_FORMAT + "/hchat reload " + C_FORMAT_DESC + "-> Reload files and update player info.",
+			C_BULLET + " * " + C_FORMAT + "/hchat update " + C_FORMAT_DESC + "-> Update the plugin to the latest version.",
 	});
 
 	public HChatCommandExecutor(HChatPlugin plugin) {
@@ -29,30 +30,31 @@ public class HChatCommandExecutor extends AbstractCommandExecutor {
 
 	@Override
 	protected void onCommand(CommandSender sender, String[] args) {
-		if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-			if (hasPerm(sender, PERM_COMMAND_HCHAT_RELOAD)) {
-				getPlugin().getConfigManager().load();
-				getPlugin().getChatManager().reload();
-				sender.sendMessage(GREEN + "hChat reloaded!");
-			}
-		} else if (args.length > 0 && args[0].equalsIgnoreCase("list")) {
+		if (args.length > 0 && args[0].equalsIgnoreCase("list")) {
 			if (hasPerm(sender, PERM_COMMAND_HCHAT_LIST)) {
 				if (args.length > 1 && args[1].equalsIgnoreCase("groups")) {
-					sender.sendMessage(BLUE + "hChat groups:");
+					sender.sendMessage(C_HEADER + "hChat groups:");
 					for (String s : getPlugin().getChatManager().getGroups().keySet())
 						sender.sendMessage(s);
 				} else if (args.length > 1 && args[1].equalsIgnoreCase("channels")) {
-					sender.sendMessage(BLUE + "hChat channels:");
+					sender.sendMessage(C_HEADER + "hChat channels:");
 					for (String s : getPlugin().getChatManager().getChannels().keySet())
 						sender.sendMessage(s);
 				} else if (args.length > 1 && args[1].equalsIgnoreCase("players")) {
-					sender.sendMessage(BLUE + "hChat players: " + GRAY + "(player : real group : group : channel)");
+					sender.sendMessage(C_HEADER + "hChat players: " + C_BRACKET + "[player : real group : group : channel]");
 					ChatManager cm = getPlugin().getChatManager();
 					for (Player p : Bukkit.getOnlinePlayers())
-						sender.sendMessage(p.getName() + GRAY + " | " + RESET + cm.getRealGroup(p) + GRAY + " | " + RESET + cm.getGroup(p.getUniqueId()).getId() + GRAY + " | " + RESET + cm.getChannel(p.getUniqueId()).getId());
+						sender.sendMessage(C_TEXT + p.getName() + C_FRAGMENT + " | " + C_TEXT + cm.getRealGroup(p) + C_FRAGMENT + " | " + C_TEXT + cm.getGroup(p.getUniqueId()).getId()
+								+ C_FRAGMENT + " | " + C_TEXT + cm.getChannel(p.getUniqueId()).getId());
 				} else {
-					sender.sendMessage(GOLD + "Syntax: " + RESET + "/hchat list <groups|channels|players>");
+					sender.sendMessage(C_FORMAT_DESC + "Format: " + C_FORMAT + "/hchat list <groups|channels|players>");
 				}
+			}
+		} else if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+			if (hasPerm(sender, PERM_COMMAND_HCHAT_RELOAD)) {
+				getPlugin().getConfigManager().load();
+				getPlugin().getChatManager().reload();
+				sender.sendMessage(C_SUCCESS + "hChat reloaded!");
 			}
 		} else if (args.length > 0 && args[0].equalsIgnoreCase("update")) {
 			if (hasPerm(sender, PERM_COMMAND_HCHAT_UPDATE)) {

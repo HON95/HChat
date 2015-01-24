@@ -3,7 +3,6 @@ package no.hon95.bukkit.hchat.common.util;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 public class StringList extends ArrayList<String> {
 
 	private static final long serialVersionUID = 1L;

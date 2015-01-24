@@ -27,7 +27,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-
 public final class HChatPlugin extends JavaPlugin {
 
 	private static final int SERVER_MODS_API_ID = 77039;

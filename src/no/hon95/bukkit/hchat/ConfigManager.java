@@ -11,7 +11,6 @@ import no.hon95.bukkit.hchat.common.util.YamlConfigWrapper;
 
 import org.bukkit.ChatColor;
 
-
 public final class ConfigManager {
 
 	private static final String DEFAULT_GROUP = "default";
@@ -44,7 +43,7 @@ public final class ConfigManager {
 		loadCensoredWords();
 	}
 
-	//// CONFIG ////
+	// CONFIG //
 
 	private void loadConfig() {
 		YamlConfigWrapper conf = new YamlConfigWrapper(new File(gPlugin.getDataFolder(), FILENAME_CONFIG), HEADER_CONFIG, gPlugin.getLogger(), true);
@@ -74,7 +73,7 @@ public final class ConfigManager {
 		conf.saveAsync();
 	}
 
-	//// GROUPS ////
+	// GROUPS //
 
 	private void loadGroups() {
 		gGroupsYaml = new YamlConfigWrapper(new File(gPlugin.getDataFolder(), FILENAME_GROUPS), HEADER_GROUPS, gPlugin.getLogger(), true);
@@ -82,8 +81,10 @@ public final class ConfigManager {
 		Group defGroup = loadGroup(DEFAULT_GROUP, createExampleGroup(), true);
 		groups.add(defGroup);
 		for (String group : gGroupsYaml.getConfig().getKeys(false)) {
-			if (!group.equalsIgnoreCase(DEFAULT_GROUP))
-				groups.add(loadGroup(group.toLowerCase(), defGroup, false));
+			if (group.contains(" ")) {
+				gPlugin.getLogger().warning("Group ID can not contain spaces: " + group);
+			} else if (!group.equalsIgnoreCase(DEFAULT_GROUP))
+				groups.add(loadGroup(group, defGroup, false));
 		}
 		gPlugin.getChatManager().setGroups(groups);
 		saveGroups();
@@ -91,7 +92,7 @@ public final class ConfigManager {
 
 	private Group loadGroup(String groupId, Group defGroup, boolean setIfUnset) {
 		Group group = new Group();
-		group.setId(groupId);
+		group.setId(groupId.toLowerCase());
 		group.setName(ChatColor.translateAlternateColorCodes('&', gGroupsYaml.getString(groupId + ".name", groupId, true)));
 		group.setPrefix(gGroupsYaml.getString(groupId + ".prefix", defGroup.getPrefix(), setIfUnset));
 		group.setSuffix(gGroupsYaml.getString(groupId + ".suffix", defGroup.getSuffix(), setIfUnset));
@@ -209,7 +210,7 @@ public final class ConfigManager {
 		return group;
 	}
 
-	//// CHANNELS ////
+	// CHANNELS //
 
 	private void loadChannels() {
 		gChannelsYaml = new YamlConfigWrapper(new File(gPlugin.getDataFolder(), FILENAME_CHANNELS), HEADER_CHANNELS, gPlugin.getLogger(), true);
@@ -217,8 +218,10 @@ public final class ConfigManager {
 		Channel defChannel = loadChannel(DEFAULT_CHANNEL, true);
 		channels.add(defChannel);
 		for (String channel : gChannelsYaml.getConfig().getKeys(false)) {
-			if (!channel.equalsIgnoreCase(DEFAULT_CHANNEL))
-				channels.add(loadChannel(channel.toLowerCase(), false));
+			if (channel.contains(" ")) {
+				gPlugin.getLogger().warning("Group ID can not contain spaces: " + channel);
+			} else if (!channel.equalsIgnoreCase(DEFAULT_CHANNEL))
+				channels.add(loadChannel(channel, false));
 		}
 		gPlugin.getChatManager().setChannels(channels);
 		saveChannels();
@@ -226,12 +229,13 @@ public final class ConfigManager {
 
 	private Channel loadChannel(String channelId, boolean def) {
 		Channel channel = new Channel();
-		channel.setId(channelId);
+		channel.setId(channelId.toLowerCase());
 		channel.setName(ChatColor.translateAlternateColorCodes('&', gChannelsYaml.getString(channelId + ".name", channelId, true)));
 		channel.setOwner(gChannelsYaml.getString(channelId + ".owner", "", true));
 		channel.setPassword(gChannelsYaml.getString(channelId + ".password", "", def));
 		channel.setChatFormat(gChannelsYaml.getString(channelId + ".chat_format", "", def));
 		channel.setPrivate(gChannelsYaml.getBoolean(channelId + ".private", true, true));
+		channel.setHidden(gChannelsYaml.getBoolean(channelId + ".hidden", def, def));
 		channel.setCensored(gChannelsYaml.getBoolean(channelId + ".censor", false, def));
 		channel.setAllowColorCodes(gChannelsYaml.getBoolean(channelId + ".color_codes", false, def));
 		channel.setUniversal(gChannelsYaml.getBoolean(channelId + ".universal", true, def));
@@ -254,6 +258,7 @@ public final class ConfigManager {
 		gChannelsYaml.set(id + ".password", channel.getPassword());
 		gChannelsYaml.set(id + ".chat_format", channel.getChatFormat());
 		gChannelsYaml.set(id + ".private", channel.isPrivate());
+		gChannelsYaml.set(id + ".hidden", channel.isPrivate());
 		gChannelsYaml.set(id + ".censor", channel.isCensored());
 		gChannelsYaml.set(id + ".color_codes", channel.allowColorCodes());
 		gChannelsYaml.set(id + ".universal", channel.isUniversal());
@@ -275,7 +280,7 @@ public final class ConfigManager {
 		gChannelsYaml.saveAsync();
 	}
 
-	//// CENSOR ////
+	// CENSOR //
 
 	private void loadCensoredWords() {
 		YamlConfigWrapper conf = new YamlConfigWrapper(new File(gPlugin.getDataFolder(), FILENAME_CENSOR), HEADER_CENSOR, gPlugin.getLogger(), true);

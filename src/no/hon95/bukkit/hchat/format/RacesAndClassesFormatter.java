@@ -8,7 +8,6 @@ import no.hon95.bukkit.hchat.format.FormatManager.MessageType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-
 public final class RacesAndClassesFormatter extends Formatter {
 
 	private final HChatPlugin gPlugin;

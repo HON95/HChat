@@ -6,7 +6,6 @@ import no.hon95.bukkit.hchat.format.FormatManager.MessageType;
 
 import org.bukkit.command.CommandSender;
 
-
 public abstract class Formatter {
 
 	public String formatEarly(MessageType type, String format, CommandSender sender, CommandSender receiver, String message, Group group, Channel channel) {

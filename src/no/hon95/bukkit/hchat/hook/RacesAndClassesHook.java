@@ -6,7 +6,6 @@ import no.hon95.bukkit.hchat.HChatPlugin;
 import de.tobiyas.racesandclasses.RacesAndClasses;
 import de.tobiyas.racesandclasses.datacontainer.traitholdercontainer.AbstractTraitHolder;
 
-
 public final class RacesAndClassesHook implements Hook {
 
 	private static final String CLASS = "de.tobiyas.racesandclasses.RacesAndClasses";

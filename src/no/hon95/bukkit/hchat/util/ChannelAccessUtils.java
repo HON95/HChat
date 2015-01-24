@@ -7,7 +7,6 @@ import no.hon95.bukkit.hchat.Channel;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-
 public final class ChannelAccessUtils {
 
 	private ChannelAccessUtils() {}
@@ -58,8 +57,6 @@ public final class ChannelAccessUtils {
 		ChatColor color;
 		if (isOwner(channel, player)) {
 			color = ChatColor.BLUE;
-		} else if (hasUnquestionableAccess(channel, player)) {
-			color = ChatColor.GREEN;
 		} else if (hasBasicAccess(channel, player, group)) {
 			if (channel.isPrivate())
 				color = ChatColor.GOLD;

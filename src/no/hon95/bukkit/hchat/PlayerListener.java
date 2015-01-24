@@ -23,7 +23,6 @@ import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-
 public final class PlayerListener implements Listener {
 
 	private final HChatPlugin gPlugin;
@@ -37,22 +36,22 @@ public final class PlayerListener implements Listener {
 		cm().onPlayerMoveOrUpdate(ev.getPlayer());
 		cm().onPlayerChat(ev);
 	}
-	
+
 	@EventHandler
 	public void onEvent(PlayerCommandPreprocessEvent ev) {
 		cm().onPlayerMoveOrUpdate(ev.getPlayer());
 	}
-	
+
 	@EventHandler
 	public void onEvent(PlayerDropItemEvent ev) {
 		cm().onPlayerMoveOrUpdate(ev.getPlayer());
 	}
-	
+
 	@EventHandler
 	public void onEvent(PlayerInteractEvent ev) {
 		cm().onPlayerMoveOrUpdate(ev.getPlayer());
 	}
-	
+
 	@EventHandler
 	public void onEvent(PlayerInteractEntityEvent ev) {
 		cm().onPlayerMoveOrUpdate(ev.getPlayer());
@@ -120,7 +119,7 @@ public final class PlayerListener implements Listener {
 	public void inEvent(PlayerMoveEvent ev) {
 		cm().onPlayerMoveOrUpdate(ev.getPlayer());
 	}
-	
+
 	private ChatManager cm() {
 		return gPlugin.getChatManager();
 	}

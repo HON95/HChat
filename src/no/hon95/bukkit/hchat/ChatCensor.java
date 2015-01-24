@@ -3,7 +3,6 @@ package no.hon95.bukkit.hchat;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
 public final class ChatCensor {
 
 	public static String censor(String msg, Map<String, String> censoredWords) {

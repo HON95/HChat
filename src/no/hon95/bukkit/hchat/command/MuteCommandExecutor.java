@@ -7,13 +7,13 @@ import java.util.UUID;
 
 import no.hon95.bukkit.hchat.HChatCommands;
 import no.hon95.bukkit.hchat.HChatPlugin;
+import no.hon95.bukkit.hchat.common.util.AbstractCommandExecutor;
 import no.hon95.bukkit.hchat.common.util.PlayerIdUtils;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-
-public final class MuteCommandExecutor extends AbstractCommandExecutor {
+public final class MuteCommandExecutor extends AbstractCommandExecutor<HChatPlugin> {
 
 	private static final String COMMAND = HChatCommands.CMD_MUTE;
 

@@ -3,11 +3,11 @@ package no.hon95.bukkit.hchat.command;
 import static no.hon95.bukkit.hchat.HChatPermissions.*;
 import no.hon95.bukkit.hchat.HChatCommands;
 import no.hon95.bukkit.hchat.HChatPlugin;
+import no.hon95.bukkit.hchat.common.util.AbstractCommandExecutor;
 
 import org.bukkit.command.CommandSender;
 
-
-public final class ColorsCommandExecutor extends AbstractCommandExecutor {
+public final class ColorsCommandExecutor extends AbstractCommandExecutor<HChatPlugin> {
 
 	private static final String COMMAND = HChatCommands.CMD_COLORS;
 	private static final String[] COLOR_MESSAGE = translateColorCodes(new String[] { "",

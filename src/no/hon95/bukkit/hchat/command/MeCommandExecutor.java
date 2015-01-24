@@ -4,6 +4,7 @@ import static no.hon95.bukkit.hchat.HChatPermissions.*;
 import static org.bukkit.ChatColor.*;
 import no.hon95.bukkit.hchat.HChatCommands;
 import no.hon95.bukkit.hchat.HChatPlugin;
+import no.hon95.bukkit.hchat.common.util.AbstractCommandExecutor;
 import no.hon95.bukkit.hchat.format.FormatManager.MessageType;
 
 import org.apache.commons.lang.StringUtils;
@@ -11,8 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-
-public final class MeCommandExecutor extends AbstractCommandExecutor {
+public final class MeCommandExecutor extends AbstractCommandExecutor<HChatPlugin> {
 
 	private static final String COMMAND = HChatCommands.CMD_ME;
 

@@ -3,22 +3,21 @@ package no.hon95.bukkit.hchat.common.util;
 import java.util.HashMap;
 import java.util.Map;
 
-
-public class StringKeyMap<V> extends HashMap<String, V> {
+public class StringKeyHashMap<V> extends HashMap<String, V> {
 
 	private static final long serialVersionUID = 1L;
 
-	public StringKeyMap() {}
+	public StringKeyHashMap() {}
 
-	public StringKeyMap(int initialCapacity) {
+	public StringKeyHashMap(int initialCapacity) {
 		super(initialCapacity);
 	}
 
-	public StringKeyMap(int initialCapacity, float loadFactor) {
+	public StringKeyHashMap(int initialCapacity, float loadFactor) {
 		super(initialCapacity, loadFactor);
 	}
 
-	public StringKeyMap(Map<? extends String, ? extends V> m) {
+	public StringKeyHashMap(Map<? extends String, ? extends V> m) {
 		super(m);
 	}
 

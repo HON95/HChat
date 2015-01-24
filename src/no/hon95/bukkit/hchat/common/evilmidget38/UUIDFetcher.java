@@ -18,7 +18,6 @@ import org.json.simple.parser.JSONParser;
 
 import com.google.common.collect.ImmutableList;
 
-
 public class UUIDFetcher implements Callable<Map<String, UUID>> {
 	private static final double PROFILES_PER_REQUEST = 100;
 	private static final String PROFILE_URL = "https://api.mojang.com/profiles/minecraft";

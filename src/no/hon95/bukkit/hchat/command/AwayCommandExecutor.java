@@ -3,12 +3,12 @@ package no.hon95.bukkit.hchat.command;
 import static no.hon95.bukkit.hchat.HChatPermissions.*;
 import no.hon95.bukkit.hchat.HChatCommands;
 import no.hon95.bukkit.hchat.HChatPlugin;
+import no.hon95.bukkit.hchat.common.util.AbstractCommandExecutor;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-
-public final class AwayCommandExecutor extends AbstractCommandExecutor {
+public final class AwayCommandExecutor extends AbstractCommandExecutor<HChatPlugin> {
 
 	private static final String COMMAND = HChatCommands.CMD_AWAY;
 

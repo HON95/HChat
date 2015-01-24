@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-
 public final class YamlConfigWrapper {
 
 	private final File gFile;
@@ -20,6 +19,7 @@ public final class YamlConfigWrapper {
 	private final Logger gLogger;
 	private YamlConfiguration gConf = null;
 	private volatile boolean gChange = false;
+	private final Object gSaveLock = new Object();
 
 	public YamlConfigWrapper(File file, String header, Logger logger, boolean load) {
 		gFile = file;
@@ -46,8 +46,9 @@ public final class YamlConfigWrapper {
 	}
 
 	public boolean load() {
-		boolean success = false;
+		gChange = false;
 		gConf = new YamlConfiguration();
+		boolean success = false;
 		try {
 			gConf.load(gFile);
 			success = true;
@@ -62,6 +63,9 @@ public final class YamlConfigWrapper {
 			gChange = true;
 			gLogger.warning("Configuration file '" + gFile.getName() + "' is invalid, creating new.");
 			ex.printStackTrace();
+		}
+		if (gChange) {
+			gFile.renameTo(new File(gFile.getPath() + ".old"));
 		}
 		gConf.options().copyHeader(true);
 		gConf.options().header(gHeader);
@@ -86,7 +90,9 @@ public final class YamlConfigWrapper {
 					gFile.getParentFile().mkdirs();
 					gFile.createNewFile();
 				}
-				gConf.save(gFile);
+				synchronized (gSaveLock) {
+					gConf.save(gFile);
+				}
 			} catch (Exception ex) {
 				gChange = true;
 				gLogger.warning("Failed to save configuration file '" + gFile.getName() + "'.");
@@ -178,7 +184,8 @@ public final class YamlConfigWrapper {
 			}
 		} else if (set) {
 			for (Entry<String, String> e : def.entrySet()) {
-				String path2 = path + '.' + e.getKey();;
+				String path2 = path + '.' + e.getKey();
+				;
 				gConf.set(path2, e.getValue());
 			}
 			gChange = true;
@@ -188,7 +195,9 @@ public final class YamlConfigWrapper {
 
 	public void set(String path, Object value) {
 		if (gConf.get(path) != value) {
-			gConf.set(path, value);
+			synchronized (gSaveLock) {
+				gConf.set(path, value);
+			}
 			gChange = true;
 		}
 	}

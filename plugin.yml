@@ -1,6 +1,6 @@
 name: hChat
 main: no.hon95.bukkit.hchat.HChatPlugin
-version: 1.5.0
+version: 1.5.1
 author: HON95
 description: Chat formatter.
 softdepend: [Vault,RacesAndClasses]
@@ -51,6 +51,7 @@ permissions:
             hchat.mute.global: true
             hchat.channel.*: true
             hchat.modifyallchannels: true
+            hchat.seeallchannels: true
     hchat.command.hchat:
         description: For all subcommands of command hchat.
         children:
@@ -100,6 +101,7 @@ permissions:
             hchat.command.channel.edit.password: true
             hchat.command.channel.edit.chatformat: true
             hchat.command.channel.edit.private: true
+            hchat.command.channel.edit.hidden: true
             hchat.command.channel.edit.censored: true
             hchat.command.channel.edit.colorcodes: true
             hchat.command.channel.edit.universal: true
@@ -119,6 +121,8 @@ permissions:
         description: Edit a channels chat format.
     hchat.command.channel.edit.private:
         description: Edit a channels privacy.
+    hchat.command.channel.edit.hidden:
+        description: Edit a channels visibility.
     hchat.command.channel.edit.censored:
         description: Edit a channels censor setting.
     hchat.command.channel.edit.colorcodes:
@@ -169,3 +173,5 @@ permissions:
         description: Get notified if a plugin update has been found.
     hchat.modifyallchannels:
         description: Modify all channels.
+    hchat.seeallchannels:
+        description: See all channels.

@@ -45,12 +45,29 @@ public class Vector3i {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == this) {
+		if (obj == null) {
+			return false;
+		} else if (obj == this) {
 			return true;
 		} else if (obj instanceof Vector3i) {
 			Vector3i vector = (Vector3i) obj;
-			return (vector.getX() == getX() && vector.getY() == getY() && vector.getZ() == getZ());
+			return hashCode() == vector.hashCode();
 		}
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 37;
+		int result = 13;
+		result = prime * result + getX();
+		result = prime * result + getY();
+		result = prime * result + getZ();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("[%d,%d,%d]", getX(), getY(), getZ());
 	}
 }

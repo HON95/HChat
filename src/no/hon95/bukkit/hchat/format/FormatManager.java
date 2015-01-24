@@ -10,7 +10,6 @@ import no.hon95.bukkit.hchat.HChatPlugin;
 
 import org.bukkit.command.CommandSender;
 
-
 public final class FormatManager {
 
 	private static final char CODE_PREFIX_A = '%';

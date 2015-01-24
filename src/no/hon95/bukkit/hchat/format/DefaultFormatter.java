@@ -13,7 +13,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-
 public final class DefaultFormatter extends Formatter {
 
 	private static final String SENDER_NAME_VAR = "%1$s";
@@ -86,16 +85,16 @@ public final class DefaultFormatter extends Formatter {
 			result = gPlugin.getChatManager().getRealGroup(sender);
 			break;
 		case 'h':
-			result = ""; //FIXME health percentage
+			result = ""; // FIXME health percentage
 			break;
 		case 'H':
-			result = ""; //FIXME health bars
+			result = ""; // FIXME health bars
 			break;
 		case 'i':
-			result = ""; //TODO group meta info
+			result = ""; // TODO group meta info
 			break;
 		case 'I':
-			result = ""; //TODO global meta info
+			result = ""; // TODO global meta info
 			break;
 		case 'l':
 			if (player != null)
