@@ -85,7 +85,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>ninja.hon95.bukkit</groupId>
-			<artifactId>common</artifactId>
+			<artifactId>hcommonlib</artifactId>
 			<version>R1</version>
 		</dependency>
 		<dependency>
