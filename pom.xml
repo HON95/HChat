@@ -1,0 +1,99 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ninja.hon95.bukkit</groupId>
+	<artifactId>hchat</artifactId>
+	<packaging>jar</packaging>
+	<version>1.5.1</version>
+	<name>hChat</name>
+	<description>A chat formatter for Bukkit.</description>
+	<url>http://dev.bukkit.org/bukkit-plugins/hchat/</url>
+
+	<!-- Properties -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<author>HON95</author>
+		<mainPackage>${project.groupId}.${project.artifactId}</mainPackage>
+		<mainClass>${mainPackage}.HChatPlugin</mainClass>
+		<softDepend>Vault,RacesAndClasses</softDepend>
+	</properties>
+
+	<!-- Build -->
+	<build>
+		<finalName>hChat</finalName>
+		<defaultGoal>clean package</defaultGoal>
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<resources>
+			<resource>
+				<targetPath>.</targetPath>
+				<filtering>true</filtering>
+				<directory>${basedir}/src/main/resources/</directory>
+				<includes>
+					<include>plugin.yml</include>
+				</includes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<createDependencyReducedPom>false</createDependencyReducedPom>
+					<artifactSet>
+						<includes>
+							<include>ninja.hon95.bukkit:*</include>
+							<include>org.mcstats.*:*</include>
+							<include>net.gravitydevelopment.updater:*</include>
+						</includes>
+					</artifactSet>
+					<relocations>
+						<relocation>
+							<pattern>ninja.hon95.bukkit.hcommonlib</pattern>
+							<shadedPattern>${mainPackage}.lib</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.mcstats</pattern>
+							<shadedPattern>${mainPackage}</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>net.gravitydevelopment.updater</pattern>
+							<shadedPattern>${mainPackage}</shadedPattern>
+						</relocation>
+					</relocations>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!-- Dependencies -->
+	<dependencies>
+		<dependency>
+			<groupId>ninja.hon95.bukkit</groupId>
+			<artifactId>common</artifactId>
+			<version>R1</version>
+		</dependency>
+		<dependency>
+			<groupId>de.tobiyas</groupId>
+			<artifactId>racesandclasses</artifactId>
+			<version>1.1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/lib/RacesAndClasses.jar</systemPath>
+		</dependency>
+	</dependencies>
+</project>
