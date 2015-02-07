@@ -53,11 +53,11 @@
 						</relocation>
 						<relocation>
 							<pattern>org.mcstats</pattern>
-							<shadedPattern>${mainPackage}</shadedPattern>
+							<shadedPattern>${mainPackage}.lib</shadedPattern>
 						</relocation>
 						<relocation>
 							<pattern>net.gravitydevelopment.updater</pattern>
-							<shadedPattern>${mainPackage}</shadedPattern>
+							<shadedPattern>${mainPackage}.lib</shadedPattern>
 						</relocation>
 					</relocations>
 				</configuration>

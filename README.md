@@ -1,5 +1,5 @@
 hChat
-=====
+======
 
 hChat plugin for Bukkit.
 
